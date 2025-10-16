@@ -3,11 +3,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import MainLayout from './components/layout/MainLayout'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Orders from './pages/Orders'
 import ScanJobCard from './pages/ScanJobCard'
-import Reports from './pages/Reports'
+import Inspections from './pages/Inspections'
+import Alterations from './pages/Alterations'
 import Analytics from './pages/Analytics'
 import Profile from './pages/Profile'
 
@@ -30,47 +33,22 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
 
-            {/* Protected Routes */}
+            {/* Protected Routes with MainLayout */}
             <Route
-              path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <MainLayout />
                 </ProtectedRoute>
               }
-            />
-            <Route
-              path="/scan"
-              element={
-                <ProtectedRoute>
-                  <ScanJobCard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <Analytics />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/scan" element={<ScanJobCard />} />
+              <Route path="/inspections" element={<Inspections />} />
+              <Route path="/alterations" element={<Alterations />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
 
             {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
