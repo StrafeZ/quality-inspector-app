@@ -2,9 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/contexts/AuthContext'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import ProtectedRoute from './components/auth/ProtectedRoute'
+import ScanJobCard from './pages/ScanJobCard'
+import Reports from './pages/Reports'
+import Analytics from './pages/Analytics'
+import Profile from './pages/Profile'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,7 +26,11 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Login />} />
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+
+            {/* Protected Routes */}
             <Route
               path="/dashboard"
               element={
@@ -30,6 +39,40 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/scan"
+              element={
+                <ProtectedRoute>
+                  <ScanJobCard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch-all */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <Toaster
