@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,17 +22,13 @@ export default function Login() {
 
   const { signIn, isAuthenticated } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
-
-  // Get redirect path from location state or default to dashboard
-  const from = (location.state as any)?.from || '/dashboard'
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(from, { replace: true })
+      navigate('/dashboard', { replace: true })
     }
-  }, [isAuthenticated, navigate, from])
+  }, [isAuthenticated, navigate])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -47,7 +43,7 @@ export default function Login() {
       }
 
       toast.success('Successfully signed in!')
-      navigate(from, { replace: true })
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       toast.error('An unexpected error occurred. Please try again.')
     } finally {
