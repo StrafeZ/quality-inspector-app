@@ -31,6 +31,10 @@ export default function JobCardDetail() {
   const navigate = useNavigate()
   const { data: jobCardData, isLoading: jobCardLoading } = useJobCard(jobCardId!)
 
+  // Add debug logging
+  console.log('JobCardDetail - jobCardId:', jobCardId)
+  console.log('JobCardDetail - jobCardData:', jobCardData)
+
   // Extract order details for fetching inspection
   const order = jobCardData?.order
   const jobCard = jobCardData?.jobCard
@@ -41,8 +45,16 @@ export default function JobCardDetail() {
     order?.color || ''
   )
 
+  // Add debug logging
+  console.log('JobCardDetail - style:', order?.style_name)
+  console.log('JobCardDetail - color:', order?.color)
+  console.log('JobCardDetail - inspection:', inspection)
+
   // Fetch alterations for this job card
   const { data: alterations = [] } = useAlterationsByJobCard(jobCardId!)
+
+  // Add debug logging
+  console.log('JobCardDetail - alterations:', alterations)
 
   // Loading state
   if (jobCardLoading) {
