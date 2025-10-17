@@ -51,8 +51,9 @@ const inspectionService = {
         .select('*')
         .eq('style', style)
         .eq('color', color)
+        .order('created_at', { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error(
