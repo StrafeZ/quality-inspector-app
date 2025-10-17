@@ -109,7 +109,7 @@ export default function JobCardDetail() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate(`/orders/${order.production_po || order.order_id}`)}
+          onClick={() => navigate(`/orders/${order.order_id}`)}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -118,7 +118,7 @@ export default function JobCardDetail() {
 
         <PageHeader
           title={`Job Card #${jobCard.serial_no}`}
-          description={`${order.production_po || order.order_id} | ${order.customer_name || 'Unknown Customer'}`}
+          description={`${order.order_id} | ${order.customer_name || 'Unknown Customer'}`}
           actions={
             <div className="flex gap-3">
               {isInspected ? (
@@ -208,7 +208,7 @@ export default function JobCardDetail() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600">Production PO</p>
-              <p className="font-medium">{order.production_po || order.order_id}</p>
+              <p className="font-medium">{order.order_id}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Customer</p>
@@ -449,7 +449,7 @@ export default function JobCardDetail() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Close</AlertDialogCancel>
-            <AlertDialogAction onClick={() => navigate(`/orders/${order.production_po || order.order_id}`)}>
+            <AlertDialogAction onClick={() => navigate(`/orders/${order.order_id}`)}>
               Go to Order Page
             </AlertDialogAction>
           </AlertDialogFooter>

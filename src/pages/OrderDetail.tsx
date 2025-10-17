@@ -78,8 +78,8 @@ export default function OrderDetail() {
         </Button>
 
         <PageHeader
-          title={order.production_po || order.order_id || 'Order Details'}
-          description={`${order.customer_name || 'Unknown Customer'} | ${order.order_name || order.order_id || 'N/A'}`}
+          title={order.order_id || 'Order Details'}
+          description={`${order.customer_name || 'Unknown Customer'} | ${order.style_name || order.order_id || 'N/A'}`}
           actions={
             <Button
               onClick={() => navigate(`/inspections/new?style=${order.style_name}&color=${order.color}&orderId=${order.order_id}`)}
