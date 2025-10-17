@@ -12,7 +12,6 @@ import {
   Package,
   Clock,
   AlertTriangle,
-  Edit,
   Loader2,
   ChevronDown,
   ChevronUp,
@@ -71,15 +70,6 @@ export default function OrderDetail() {
         <PageHeader
           title={order.production_po || order.order_id || 'Order Details'}
           description={`${order.customer_name || 'Unknown Customer'} | ${order.order_name || order.order_id || 'N/A'}`}
-          actions={
-            <>
-              <Button variant="outline" size="sm">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Button>
-              <Button size="sm">View Job Cards</Button>
-            </>
-          }
         />
       </div>
 
