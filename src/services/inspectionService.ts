@@ -228,11 +228,11 @@ const inspectionService = {
 
       const totalInspections = inspections?.length || 0
       const passCount =
-        inspections?.filter((i) => i.overall_status === 'pass').length || 0
+        inspections?.filter((i: InspectionReport) => i.overall_status === 'pass').length || 0
       const passRate = totalInspections > 0 ? (passCount / totalInspections) * 100 : 0
 
       // Fetch alterations for all inspections
-      const inspectionIds = inspections?.map((i) => i.id) || []
+      const inspectionIds = inspections?.map((i: InspectionReport) => i.id) || []
       let totalAlterations = 0
       let pendingCorrections = 0
 
@@ -250,7 +250,7 @@ const inspectionService = {
         } else {
           totalAlterations = alterations?.length || 0
           pendingCorrections =
-            alterations?.filter((a) => !a.is_corrected).length || 0
+            alterations?.filter((a: Alteration) => !a.is_corrected).length || 0
         }
       }
 

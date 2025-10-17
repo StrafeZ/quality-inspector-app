@@ -52,7 +52,7 @@ const ordersService = {
 
       // Fetch job card counts for each order
       const ordersWithCounts = await Promise.all(
-        (orders || []).map(async (order) => {
+        (orders || []).map(async (order: Order) => {
           const { count } = await supabase
             .from('job_cards')
             .select('*', { count: 'exact', head: true })
