@@ -140,8 +140,16 @@ export default function OrderDetail() {
                 <p className="font-medium">{jobCardsCount} pieces</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Style Number</p>
-                <p className="font-medium">{order.style_number || 'N/A'}</p>
+                <p className="text-sm text-gray-600">Order Type</p>
+                <p className={`font-medium ${
+                  order.order_type?.toLowerCase() === 'sample'
+                    ? 'text-red-600'
+                    : order.order_type?.toLowerCase() === 'production'
+                    ? 'text-green-600'
+                    : ''
+                }`}>
+                  {order.order_type || 'N/A'}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Color</p>
