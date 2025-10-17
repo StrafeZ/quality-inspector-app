@@ -264,6 +264,45 @@ const ordersService = {
       return null
     }
   },
+
+  /**
+   * Fetches a single job card by ID with related order information
+   * @param jobCardId - The job card ID to fetch
+   * @returns Promise with job card and order data, or null if not found
+   */
+  async getJobCardById(
+    jobCardId: string
+  ): Promise<{ jobCard: JobCard; order: Order } | null> {
+    try {
+      // Fetch the job card
+      const { data: jobCard, error: jobCardError } = await supabase
+        .from('job_cards')
+        .select('*')
+        .eq('job_card_id', jobCardId)
+        .single()
+
+      if (jobCardError || !jobCard) {
+        console.error(`Error fetching job card ${jobCardId}:`, jobCardError?.message)
+        return null
+      }
+
+      // Fetch the related order using the job card's order_id
+      const order = await this.getOrderById(jobCard.order_id)
+
+      if (!order) {
+        console.error(`Order not found for job card ${jobCardId}`)
+        return null
+      }
+
+      return {
+        jobCard: jobCard as JobCard,
+        order,
+      }
+    } catch (error) {
+      console.error(`Unexpected error fetching job card ${jobCardId}:`, error)
+      return null
+    }
+  },
 }
 
 export default ordersService
