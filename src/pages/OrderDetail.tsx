@@ -148,7 +148,9 @@ export default function OrderDetail() {
                     ? 'text-green-600'
                     : ''
                 }`}>
-                  {order.order_type || 'N/A'}
+                  {order.order_type
+                    ? order.order_type.charAt(0).toUpperCase() + order.order_type.slice(1).toLowerCase()
+                    : 'N/A'}
                 </p>
               </div>
               <div>
