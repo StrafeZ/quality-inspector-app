@@ -114,6 +114,14 @@ export default function InspectionReport() {
         <PageHeader
           title={`Inspection Report: ${inspection.inspection_number}`}
           description={`${inspection.customer} | ${inspection.style} - ${inspection.color}`}
+          actions={
+            inspection.overall_status === 'in_progress' ? (
+              <Button onClick={() => navigate(`/inspections/complete/${inspectionId}`)}>
+                <ClipboardCheck className="h-4 w-4 mr-2" />
+                Complete Inspection
+              </Button>
+            ) : undefined
+          }
         />
       </div>
 

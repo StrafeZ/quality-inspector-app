@@ -17,6 +17,7 @@ import OrderDetail from './pages/OrderDetail'
 import JobCardDetail from './pages/JobCardDetail'
 import InspectionReport from './pages/InspectionReport'
 import NewInspection from './pages/NewInspection'
+import CompleteInspection from './pages/CompleteInspection'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +54,7 @@ function App() {
               <Route path="/inspections" element={<Inspections />} />
               <Route path="/inspections/new" element={<NewInspection />} />
               <Route path="/inspections/report/:inspectionId" element={<InspectionReport />} />
+              <Route path="/inspections/complete/:inspectionId" element={<CompleteInspection />} />
               <Route path="/alterations" element={<Alterations />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/profile" element={<Profile />} />

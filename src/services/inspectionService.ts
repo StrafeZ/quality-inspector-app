@@ -2,20 +2,22 @@ import { supabase } from '@/lib/supabase'
 
 export interface InspectionReport {
   id: string
-  job_card_id: string
+  job_card_id?: string | null
   inspector_id: string
   inspector_name: string
   inspection_date: string
   inspection_number: string
-  overall_status: 'pass' | 'pass_with_notes' | 'minor_alterations' | 'major_alterations' | 'reject'
+  overall_status: 'in_progress' | 'pass' | 'pass_with_notes' | 'minor_alterations' | 'major_alterations' | 'reject'
   general_notes: string | null
   inspector_comments: string | null
   email_sent: boolean
   customer: string
   style: string
   color: string
-  size: string
-  serial_no: string
+  size?: string | null
+  serial_no?: string | null
+  order_id?: string | null
+  completed_at?: string | null
   created_at: string
 }
 
