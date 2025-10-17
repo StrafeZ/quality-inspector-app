@@ -134,6 +134,42 @@ export default function NewInspection() {
         inspectionNumber,
       })
 
+      // Ensure worker record exists for current user
+      console.log('Checking for worker record...')
+      const { data: existingWorker, error: workerCheckError } = await supabase
+        .from('workers')
+        .select('worker_id, user_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (workerCheckError) {
+        console.error('Error checking worker record:', workerCheckError)
+        throw new Error('Failed to verify worker profile')
+      }
+
+      if (!existingWorker) {
+        // Auto-create worker record for this user
+        console.log('No worker record found, creating one...')
+        const { error: workerCreateError } = await supabase
+          .from('workers')
+          .insert({
+            full_name: inspectorName,
+            email: user.email || '',
+            role: 'inspector',
+            is_active: true,
+            user_id: user.id,
+          })
+
+        if (workerCreateError) {
+          console.error('Error creating worker record:', workerCreateError)
+          throw new Error('Failed to create worker profile. Please contact administrator.')
+        }
+
+        console.log('Worker record created successfully')
+      } else {
+        console.log('Worker record exists:', existingWorker.worker_id)
+      }
+
       // Insert inspection report
       const { data: newInspection, error } = await supabase
         .from('inspection_reports')
