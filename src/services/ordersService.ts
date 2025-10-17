@@ -39,6 +39,8 @@ export interface JobCard {
 
 export interface OrderWithJobCards extends Order {
   jobCardsCount: number
+  inspectionStatus: 'not_started' | 'in_progress' | 'pass' | 'pass_with_notes' | 'minor_alterations' | 'major_alterations' | 'reject'
+  inspectionId: string | null
 }
 
 const ordersService = {
@@ -59,7 +61,7 @@ const ordersService = {
         return []
       }
 
-      // Fetch job card counts for each order
+      // Fetch job card counts and inspection status for each order
       const ordersWithCounts = await Promise.all(
         (orders || []).map(async (order: Order) => {
           const { count } = await supabase
@@ -67,9 +69,20 @@ const ordersService = {
             .select('*', { count: 'exact', head: true })
             .eq('order_id', order.order_id)
 
+          // Fetch most recent inspection for this order
+          const { data: inspection } = await supabase
+            .from('inspection_reports')
+            .select('id, overall_status')
+            .eq('order_id', order.order_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
           return {
             ...order,
             jobCardsCount: count || 0,
+            inspectionStatus: inspection?.overall_status || 'not_started',
+            inspectionId: inspection?.id || null,
           } as OrderWithJobCards
         })
       )

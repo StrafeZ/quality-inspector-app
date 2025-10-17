@@ -19,16 +19,22 @@ export default function Orders() {
   const navigate = useNavigate()
   const { data: orders, isLoading, error } = useOrders()
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'bg-blue-100 text-blue-800'
-      case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'pending':
+  const getInspectionStatusColor = (status: string) => {
+    switch (status) {
+      case 'not_started':
         return 'bg-gray-100 text-gray-800'
-      case 'completed':
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800'
+      case 'pass':
         return 'bg-green-100 text-green-800'
+      case 'pass_with_notes':
+        return 'bg-emerald-100 text-emerald-800'
+      case 'minor_alterations':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'major_alterations':
+        return 'bg-orange-100 text-orange-800'
+      case 'reject':
+        return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -108,7 +114,7 @@ export default function Orders() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Style</TableHead>
                   <TableHead>Quantity</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Inspection Status</TableHead>
                   <TableHead>Delivery Date</TableHead>
                 </TableRow>
               </TableHeader>
@@ -116,16 +122,16 @@ export default function Orders() {
                 {orders.map((order) => (
                   <TableRow
                     key={order.order_id}
-                    onClick={() => handleRowClick(order.production_po || order.order_id)}
+                    onClick={() => handleRowClick(order.order_id)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
-                    <TableCell className="font-medium">{order.production_po || order.order_id}</TableCell>
+                    <TableCell className="font-medium">{order.order_id}</TableCell>
                     <TableCell>{order.customer_name || '—'}</TableCell>
                     <TableCell>{order.style_name || '—'}</TableCell>
                     <TableCell>{order.jobCardsCount || 0}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(order.status || 'pending')} variant="secondary">
-                        {formatStatus(order.status || 'pending')}
+                      <Badge className={getInspectionStatusColor(order.inspectionStatus)} variant="secondary">
+                        {formatStatus(order.inspectionStatus)}
                       </Badge>
                     </TableCell>
                     <TableCell>
