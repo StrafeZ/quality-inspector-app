@@ -22,6 +22,14 @@ ON inspection_reports(order_id);
 ALTER TABLE inspection_reports
 ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
 
+-- Drop and recreate CHECK constraint to include 'in_progress' status
+ALTER TABLE inspection_reports
+DROP CONSTRAINT IF EXISTS inspection_reports_overall_status_check;
+
+ALTER TABLE inspection_reports
+ADD CONSTRAINT inspection_reports_overall_status_check
+CHECK (overall_status IN ('in_progress', 'pass', 'pass_with_notes', 'minor_alterations', 'major_alterations', 'reject'));
+
 -- Add comment explaining the change
 COMMENT ON COLUMN inspection_reports.order_id IS 'Foreign key to orders table. Inspections are now order-level rather than job-card-level.';
 COMMENT ON COLUMN inspection_reports.completed_at IS 'Timestamp when the inspection was completed and finalized.';
