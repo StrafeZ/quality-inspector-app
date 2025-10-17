@@ -43,85 +43,89 @@ const ordersService = {
   },
 
   /**
-   * Fetches a single order by ID
-   * @param orderId - The order ID to fetch
+   * Fetches a single order by production_po or order_id
+   * @param identifier - The production_po or order_id to fetch
    * @returns Promise<Order | null> - The order or null if not found
    */
-  async getOrderById(orderId: string): Promise<Order | null> {
+  async getOrderById(identifier: string): Promise<Order | null> {
     try {
-      const { data, error } = await supabase
+      // Try to fetch by production_po first (for URLs like PRD-2025-011)
+      let { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('order_id', orderId)
+        .eq('production_po', identifier)
         .single()
 
+      // If not found, try by order_id (UUID)
+      if (error || !data) {
+        const result = await supabase
+          .from('orders')
+          .select('*')
+          .eq('order_id', identifier)
+          .single()
+        data = result.data
+        error = result.error
+      }
+
       if (error) {
-        console.error(`Error fetching order ${orderId}:`, error.message)
+        console.error(`Error fetching order ${identifier}:`, error.message)
         return null
       }
 
       return data as Order
     } catch (error) {
-      console.error(`Unexpected error fetching order ${orderId}:`, error)
+      console.error(`Unexpected error fetching order ${identifier}:`, error)
       return null
     }
   },
 
   /**
    * Fetches an order with alterations and job cards counts
-   * @param orderId - The order ID to fetch
+   * @param identifier - The production_po or order_id to fetch
    * @returns Promise with order, alterations count, and job cards count, or null if not found
    */
   async getOrderWithAlterations(
-    orderId: string
+    identifier: string
   ): Promise<{ order: Order; alterationsCount: number; jobCardsCount: number } | null> {
     try {
-      // First fetch the order
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_id', orderId)
-        .single()
+      // First fetch the order (resolves production_po OR order_id)
+      const order = await this.getOrderById(identifier)
+      if (!order) return null
 
-      if (orderError) {
-        console.error(`Error fetching order ${orderId}:`, orderError.message)
-        return null
-      }
-
-      // Fetch alterations count for this order
+      // Fetch alterations count using the order's UUID
       const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
         .select('*', { count: 'exact', head: true })
-        .eq('order_id', orderId)
+        .eq('order_id', order.order_id)
 
       if (alterationsError) {
         console.error(
-          `Error fetching alterations count for order ${orderId}:`,
+          `Error fetching alterations count for order ${order.order_id}:`,
           alterationsError.message
         )
       }
 
-      // Fetch job cards count for this order
+      // Fetch job cards count using the order's UUID
       const { count: jobCardsCount, error: jobCardsError } = await supabase
         .from('job_cards')
         .select('*', { count: 'exact', head: true })
-        .eq('order_id', orderId)
+        .eq('order_id', order.order_id)
 
       if (jobCardsError) {
         console.error(
-          `Error fetching job cards count for order ${orderId}:`,
+          `Error fetching job cards count for order ${order.order_id}:`,
           jobCardsError.message
         )
       }
 
       return {
-        order: orderData as Order,
+        order,
         alterationsCount: alterationsCount ?? 0,
         jobCardsCount: jobCardsCount ?? 0,
       }
     } catch (error) {
       console.error(
-        `Unexpected error fetching order with alterations ${orderId}:`,
+        `Unexpected error fetching order with alterations ${identifier}:`,
         error
       )
       return null
@@ -130,49 +134,41 @@ const ordersService = {
 
   /**
    * Fetches an order with job cards count
-   * @param orderId - The order ID to fetch
+   * @param identifier - The production_po or order_id to fetch
    * @returns Promise with order and job card count, or null if not found
    */
   async getOrderWithJobCards(
-    orderId: string
+    identifier: string
   ): Promise<{ order: Order; jobCardCount: number } | null> {
     try {
-      // First fetch the order
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('order_id', orderId)
-        .single()
+      // First fetch the order (resolves production_po OR order_id)
+      const order = await this.getOrderById(identifier)
+      if (!order) return null
 
-      if (orderError) {
-        console.error(`Error fetching order ${orderId}:`, orderError.message)
-        return null
-      }
-
-      // Then fetch job cards count
+      // Then fetch job cards count using the order's UUID
       const { count, error: countError } = await supabase
         .from('job_cards')
         .select('*', { count: 'exact', head: true })
-        .eq('order_id', orderId)
+        .eq('order_id', order.order_id)
 
       if (countError) {
         console.error(
-          `Error fetching job cards count for order ${orderId}:`,
+          `Error fetching job cards count for order ${order.order_id}:`,
           countError.message
         )
         return {
-          order: orderData as Order,
+          order,
           jobCardCount: 0,
         }
       }
 
       return {
-        order: orderData as Order,
+        order,
         jobCardCount: count ?? 0,
       }
     } catch (error) {
       console.error(
-        `Unexpected error fetching order with job cards ${orderId}:`,
+        `Unexpected error fetching order with job cards ${identifier}:`,
         error
       )
       return null
