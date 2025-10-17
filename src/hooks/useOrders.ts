@@ -68,3 +68,17 @@ export function useOrderWithJobCardsData(identifier: string) {
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
+
+/**
+ * Hook to fetch a single job card with related order information
+ * @param jobCardId - The job card ID to fetch
+ * @returns React Query result with job card and order data
+ */
+export function useJobCard(jobCardId: string) {
+  return useQuery({
+    queryKey: ['job-card', jobCardId],
+    queryFn: () => ordersService.getJobCardById(jobCardId),
+    enabled: !!jobCardId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
