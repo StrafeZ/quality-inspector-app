@@ -39,7 +39,7 @@ export default function OrderDetail() {
   const [detailsExpanded, setDetailsExpanded] = useState(true)
 
   // Fetch inspection data for this order
-  const { data: inspection, isLoading: inspectionLoading } = useQuery({
+  const { data: inspection } = useQuery({
     queryKey: ['inspection-by-order', orderId],
     queryFn: async () => {
       if (!orderId) return null
