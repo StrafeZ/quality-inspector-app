@@ -11,6 +11,7 @@ export interface Order {
   customer_po: string | null
   status: string
   style_number: string | null
+  style_name: string | null
   fabric_type: string | null
   color: string | null
   created_at: string
@@ -67,13 +68,13 @@ const ordersService = {
   },
 
   /**
-   * Fetches an order with alterations count
+   * Fetches an order with alterations and job cards counts
    * @param orderId - The order ID to fetch
-   * @returns Promise with order and alterations count, or null if not found
+   * @returns Promise with order, alterations count, and job cards count, or null if not found
    */
   async getOrderWithAlterations(
     orderId: string
-  ): Promise<{ order: Order; alterationsCount: number } | null> {
+  ): Promise<{ order: Order; alterationsCount: number; jobCardsCount: number } | null> {
     try {
       // First fetch the order
       const { data: orderData, error: orderError } = await supabase
@@ -87,26 +88,36 @@ const ordersService = {
         return null
       }
 
-      // Then fetch alterations count for this order
-      const { count, error: countError } = await supabase
+      // Fetch alterations count for this order
+      const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
         .select('*', { count: 'exact', head: true })
         .eq('order_id', orderId)
 
-      if (countError) {
+      if (alterationsError) {
         console.error(
           `Error fetching alterations count for order ${orderId}:`,
-          countError.message
+          alterationsError.message
         )
-        return {
-          order: orderData as Order,
-          alterationsCount: 0,
-        }
+      }
+
+      // Fetch job cards count for this order
+      const { count: jobCardsCount, error: jobCardsError } = await supabase
+        .from('job_cards')
+        .select('*', { count: 'exact', head: true })
+        .eq('order_id', orderId)
+
+      if (jobCardsError) {
+        console.error(
+          `Error fetching job cards count for order ${orderId}:`,
+          jobCardsError.message
+        )
       }
 
       return {
         order: orderData as Order,
-        alterationsCount: count ?? 0,
+        alterationsCount: alterationsCount ?? 0,
+        jobCardsCount: jobCardsCount ?? 0,
       }
     } catch (error) {
       console.error(

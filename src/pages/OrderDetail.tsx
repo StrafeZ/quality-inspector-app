@@ -51,7 +51,7 @@ export default function OrderDetail() {
     )
   }
 
-  const { order, alterationsCount } = orderData
+  const { order, alterationsCount, jobCardsCount } = orderData
 
   return (
     <div>
@@ -77,8 +77,8 @@ export default function OrderDetail() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Pieces"
-          value={order.total_quantity?.toString() || '0'}
-          subtitle="Order quantity"
+          value={jobCardsCount.toString()}
+          subtitle="Job cards count"
           icon={Package}
         />
         <StatsCard
@@ -133,27 +133,19 @@ export default function OrderDetail() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Style</p>
-                <p className="font-medium">{order.order_name || 'N/A'}</p>
+                <p className="font-medium">{order.style_name || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Quantity</p>
-                <p className="font-medium">{order.total_quantity || 0} pieces</p>
+                <p className="font-medium">{jobCardsCount} pieces</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Style Number</p>
                 <p className="font-medium">{order.style_number || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Fabric Type</p>
-                <p className="font-medium">{order.fabric_type || 'N/A'}</p>
-              </div>
-              <div>
                 <p className="text-sm text-gray-600">Color</p>
                 <p className="font-medium">{order.color || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Customer PO</p>
-                <p className="font-medium">{order.customer_po || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Priority</p>
