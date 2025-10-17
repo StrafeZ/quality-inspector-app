@@ -46,6 +46,8 @@ const inspectionService = {
     color: string
   ): Promise<InspectionReport | null> {
     try {
+      console.log(`[inspectionService] Querying inspections for style: "${style}", color: "${color}"`)
+
       const { data, error } = await supabase
         .from('inspection_reports')
         .select('*')
@@ -57,16 +59,19 @@ const inspectionService = {
 
       if (error) {
         console.error(
-          `Error fetching inspection for style ${style}, color ${color}:`,
+          `[inspectionService] Error fetching inspection for style ${style}, color ${color}:`,
           error.message
         )
         return null
       }
 
+      console.log(`[inspectionService] Query result:`, data ? 'Found inspection' : 'No inspection found')
+      console.log(`[inspectionService] Inspection data:`, data)
+
       return data as InspectionReport
     } catch (error) {
       console.error(
-        `Unexpected error fetching inspection for style ${style}, color ${color}:`,
+        `[inspectionService] Unexpected error fetching inspection for style ${style}, color ${color}:`,
         error
       )
       return null
