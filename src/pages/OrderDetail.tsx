@@ -70,8 +70,8 @@ export default function OrderDetail() {
         </Button>
 
         <PageHeader
-          title={order.production_po || order.order_id}
-          description={`${order.customer_name} | ${order.order_name}`}
+          title={order.production_po || order.order_id || 'Order Details'}
+          description={`${order.customer_name || 'Unknown Customer'} | ${order.order_name || order.order_id || 'N/A'}`}
           actions={
             <>
               <Button variant="outline" size="sm">
@@ -88,7 +88,7 @@ export default function OrderDetail() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Pieces"
-          value={order.total_quantity.toString()}
+          value={order.total_quantity?.toString() || '0'}
           subtitle="Order quantity"
           icon={Package}
         />
@@ -111,7 +111,7 @@ export default function OrderDetail() {
         />
         <StatsCard
           title="Status"
-          value={order.status}
+          value={order.status || 'Unknown'}
           subtitle="Current status"
           icon={AlertTriangle}
         />
@@ -141,15 +141,15 @@ export default function OrderDetail() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Customer</p>
-                <p className="font-medium">{order.customer_name}</p>
+                <p className="font-medium">{order.customer_name || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Style</p>
-                <p className="font-medium">{order.order_name}</p>
+                <p className="font-medium">{order.order_name || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Quantity</p>
-                <p className="font-medium">{order.total_quantity} pieces</p>
+                <p className="font-medium">{order.total_quantity || 0} pieces</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Style Number</p>
@@ -174,7 +174,7 @@ export default function OrderDetail() {
               <div>
                 <p className="text-sm text-gray-600">Created</p>
                 <p className="font-medium">
-                  {format(new Date(order.created_at), 'MMM dd, yyyy')}
+                  {order.created_at ? format(new Date(order.created_at), 'MMM dd, yyyy') : 'N/A'}
                 </p>
               </div>
             </div>

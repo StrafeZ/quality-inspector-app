@@ -120,13 +120,13 @@ export default function Orders() {
                     onClick={() => handleRowClick(order.order_id)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
-                    <TableCell className="font-medium">{order.order_name}</TableCell>
-                    <TableCell>{order.customer_name}</TableCell>
+                    <TableCell className="font-medium">{order.order_name || order.order_id || '—'}</TableCell>
+                    <TableCell>{order.customer_name || '—'}</TableCell>
                     <TableCell>{order.style_number || '—'}</TableCell>
-                    <TableCell>{order.total_quantity}</TableCell>
+                    <TableCell>{order.total_quantity || 0}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(order.status)} variant="secondary">
-                        {formatStatus(order.status)}
+                      <Badge className={getStatusColor(order.status || 'pending')} variant="secondary">
+                        {formatStatus(order.status || 'pending')}
                       </Badge>
                     </TableCell>
                     <TableCell>
