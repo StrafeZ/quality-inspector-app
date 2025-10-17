@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useJobCard } from '@/hooks/useOrders'
@@ -8,6 +9,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import {
   Table,
   TableBody,
@@ -24,11 +35,13 @@ import {
   FileText,
   CheckCircle,
   XCircle,
+  ClipboardCheck,
 } from 'lucide-react'
 
 export default function JobCardDetail() {
   const { jobCardId } = useParams<{ jobCardId: string }>()
   const navigate = useNavigate()
+  const [showNoInspectionAlert, setShowNoInspectionAlert] = useState(false)
   const { data: jobCardData, isLoading: jobCardLoading } = useJobCard(jobCardId!)
 
   // Add debug logging
@@ -106,6 +119,34 @@ export default function JobCardDetail() {
         <PageHeader
           title={`Job Card #${jobCard.serial_no}`}
           description={`${order.production_po || order.order_id} | ${order.customer_name || 'Unknown Customer'}`}
+          actions={
+            <div className="flex gap-3">
+              {isInspected ? (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/inspections/report/${inspection.id}`)}
+                  >
+                    <ClipboardCheck className="h-4 w-4 mr-2" />
+                    View Report
+                  </Button>
+                  <Button
+                    onClick={() => navigate(`/alterations/new?jobCardId=${jobCardId}&inspectionId=${inspection.id}`)}
+                  >
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Add Alteration
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => setShowNoInspectionAlert(true)}
+                >
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Add Alteration
+                </Button>
+              )}
+            </div>
+          }
         />
       </div>
 
@@ -149,10 +190,11 @@ export default function JobCardDetail() {
           </AlertDescription>
         </Alert>
       ) : (
-        <Alert className="mb-8 border-yellow-200 bg-yellow-50">
-          <AlertTriangle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            This job card has not been inspected yet.
+        <Alert className="mb-8 border-blue-200 bg-blue-50">
+          <ClipboardCheck className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-900">
+            No inspection has been started for this style ({order.style_number || 'N/A'} - {jobCard.color || 'N/A'}).
+            The pattern master must start an inspection from the order page before alterations can be added to individual garments.
           </AlertDescription>
         </Alert>
       )}
@@ -389,27 +431,30 @@ export default function JobCardDetail() {
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
-      <div className="flex gap-4">
-        {isInspected ? (
-          <Button onClick={() => navigate(`/inspections/report/${inspection.id}`)}>
-            <FileText className="h-4 w-4 mr-2" />
-            View Inspection Report
-          </Button>
-        ) : (
-          <Button onClick={() => navigate(`/inspect/${jobCardId}`)}>
-            <FileText className="h-4 w-4 mr-2" />
-            Create Inspection
-          </Button>
-        )}
-        <Button
-          variant="outline"
-          onClick={() => navigate(`/orders/${order.production_po || order.order_id}`)}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Order
-        </Button>
-      </div>
+      {/* Alert: No Inspection Started */}
+      <AlertDialog open={showNoInspectionAlert} onOpenChange={setShowNoInspectionAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Inspection Not Started</AlertDialogTitle>
+            <AlertDialogDescription>
+              An inspection has not been started for this style/color combination:
+              <div className="mt-2 font-medium">
+                Style: {order.style_number || 'N/A'}<br/>
+                Color: {jobCard.color || 'N/A'}
+              </div>
+              <div className="mt-3">
+                The pattern master must start an inspection from the order page before you can add alterations to individual garments.
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogAction onClick={() => navigate(`/orders/${order.production_po || order.order_id}`)}>
+              Go to Order Page
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
