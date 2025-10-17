@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
 import { useOrderWithJobCardsData } from '@/hooks/useOrders'
+import { supabase } from '@/lib/supabase'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Table,
   TableBody,
@@ -25,6 +28,8 @@ import {
   ChevronUp,
   Eye,
   ClipboardCheck,
+  FileText,
+  CheckCircle,
 } from 'lucide-react'
 
 export default function OrderDetail() {
@@ -32,6 +37,26 @@ export default function OrderDetail() {
   const navigate = useNavigate()
   const { data: orderData, isLoading } = useOrderWithJobCardsData(orderId!)
   const [detailsExpanded, setDetailsExpanded] = useState(true)
+
+  // Fetch inspection data for this order
+  const { data: inspection, isLoading: inspectionLoading } = useQuery({
+    queryKey: ['inspection-by-order', orderId],
+    queryFn: async () => {
+      if (!orderId) return null
+
+      const { data, error } = await supabase
+        .from('inspection_reports')
+        .select('id, inspection_number, overall_status, completed_at')
+        .eq('order_id', orderId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (error && error.code !== 'PGRST116') throw error
+      return data
+    },
+    enabled: !!orderId,
+  })
 
   // Loading state
   if (isLoading) {
@@ -63,6 +88,35 @@ export default function OrderDetail() {
 
   const { order, alterationsCount, jobCardsCount, jobCards } = orderData
 
+  // Helper function to get inspection status color
+  const getInspectionStatusColor = (status: string) => {
+    switch (status) {
+      case 'not_started':
+        return 'bg-gray-100 text-gray-800'
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800'
+      case 'pass':
+        return 'bg-green-100 text-green-800'
+      case 'pass_with_notes':
+        return 'bg-emerald-100 text-emerald-800'
+      case 'minor_alterations':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'major_alterations':
+        return 'bg-orange-100 text-orange-800'
+      case 'reject':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  // Helper function to format inspection status
+  const formatStatus = (status: string) => {
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  }
+
+  const inspectionStatus = inspection?.overall_status || 'not_started'
+
   return (
     <div>
       {/* Page Header with Back Button */}
@@ -81,12 +135,21 @@ export default function OrderDetail() {
           title={order.order_id || 'Order Details'}
           description={`${order.customer_name || 'Unknown Customer'} | ${order.style_name || order.order_id || 'N/A'}`}
           actions={
-            <Button
-              onClick={() => navigate(`/inspections/new?style=${order.style_name}&color=${order.color}&orderId=${order.order_id}`)}
-            >
-              <ClipboardCheck className="h-4 w-4 mr-2" />
-              Start Inspection
-            </Button>
+            inspection ? (
+              <Button
+                onClick={() => navigate(`/inspections/report/${inspection.id}`)}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                View Inspection Report
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate(`/inspections/new?style=${order.style_name}&color=${order.color}&orderId=${order.order_id}`)}
+              >
+                <ClipboardCheck className="h-4 w-4 mr-2" />
+                Start Inspection
+              </Button>
+            )
           }
         />
       </div>
@@ -116,12 +179,67 @@ export default function OrderDetail() {
           icon={Clock}
         />
         <StatsCard
-          title="Status"
-          value={order.status || 'Unknown'}
-          subtitle="Current status"
-          icon={Package}
+          title="Inspection"
+          value={formatStatus(inspectionStatus)}
+          subtitle={inspection ? `ID: ${inspection.inspection_number}` : 'Not started'}
+          icon={ClipboardCheck}
         />
       </div>
+
+      {/* Inspection Status Alert */}
+      {inspection && (
+        <Alert className={`mb-8 ${
+          inspectionStatus === 'in_progress'
+            ? 'border-blue-200 bg-blue-50'
+            : inspectionStatus === 'pass' || inspectionStatus === 'pass_with_notes'
+            ? 'border-green-200 bg-green-50'
+            : inspectionStatus === 'reject'
+            ? 'border-red-200 bg-red-50'
+            : 'border-yellow-200 bg-yellow-50'
+        }`}>
+          {inspectionStatus === 'in_progress' ? (
+            <ClipboardCheck className="h-4 w-4 text-blue-600" />
+          ) : inspectionStatus === 'pass' || inspectionStatus === 'pass_with_notes' ? (
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          ) : (
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+          )}
+          <AlertDescription className={
+            inspectionStatus === 'in_progress'
+              ? 'text-blue-900'
+              : inspectionStatus === 'pass' || inspectionStatus === 'pass_with_notes'
+              ? 'text-green-900'
+              : inspectionStatus === 'reject'
+              ? 'text-red-900'
+              : 'text-yellow-900'
+          }>
+            <strong>Inspection Status:</strong>{' '}
+            <Badge className={getInspectionStatusColor(inspectionStatus)} variant="secondary">
+              {formatStatus(inspectionStatus)}
+            </Badge>
+            {' · '}
+            Inspection #{inspection.inspection_number}
+            {inspection.completed_at && (
+              <> · Completed {format(new Date(inspection.completed_at), 'MMM dd, yyyy')}</>
+            )}
+            <Button
+              variant="link"
+              className={`ml-2 p-0 h-auto underline ${
+                inspectionStatus === 'in_progress'
+                  ? 'text-blue-900'
+                  : inspectionStatus === 'pass' || inspectionStatus === 'pass_with_notes'
+                  ? 'text-green-900'
+                  : inspectionStatus === 'reject'
+                  ? 'text-red-900'
+                  : 'text-yellow-900'
+              }`}
+              onClick={() => navigate(`/inspections/report/${inspection.id}`)}
+            >
+              View Full Report
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Order Details Section (Collapsible) */}
       <Card className="mb-8">
