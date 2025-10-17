@@ -133,11 +133,19 @@ const ordersService = {
       const order = await this.getOrderById(identifier)
       if (!order) return null
 
-      // Fetch alterations count using the order's UUID
+      // Fetch alterations count by joining through job_cards
+      // Note: alterations table doesn't have order_id, it has job_card_id
+      const { data: jobCardsForAlterations } = await supabase
+        .from('job_cards')
+        .select('id')
+        .eq('order_id', order.order_id)
+
+      const jobCardIds = jobCardsForAlterations?.map((jc) => jc.id) || []
+
       const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
         .select('*', { count: 'exact', head: true })
-        .eq('order_id', order.order_id)
+        .in('job_card_id', jobCardIds.length > 0 ? jobCardIds : [''])
 
       if (alterationsError) {
         console.error(
@@ -248,11 +256,14 @@ const ordersService = {
         )
       }
 
-      // Fetch alterations count using the order's UUID
+      // Fetch alterations count by joining through job_cards
+      // Note: alterations table doesn't have order_id, it has job_card_id
+      const jobCardIds = jobCards?.map((jc) => jc.id) || []
+
       const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
         .select('*', { count: 'exact', head: true })
-        .eq('order_id', order.order_id)
+        .in('job_card_id', jobCardIds.length > 0 ? jobCardIds : [''])
 
       if (alterationsError) {
         console.error(
