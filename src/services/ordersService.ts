@@ -18,7 +18,7 @@ export interface Order {
 }
 
 export interface JobCard {
-  job_card_id: string
+  id: string
   order_id: string
   serial_no: number
   size: string | null
@@ -278,7 +278,7 @@ const ordersService = {
       const { data: jobCard, error: jobCardError } = await supabase
         .from('job_cards')
         .select('*')
-        .eq('job_card_id', jobCardId)
+        .eq('id', jobCardId)
         .single()
 
       if (jobCardError || !jobCard) {

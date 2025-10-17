@@ -212,9 +212,9 @@ export default function OrderDetail() {
               <TableBody>
                 {jobCards.map((jobCard) => (
                   <TableRow
-                    key={jobCard.job_card_id}
+                    key={jobCard.id}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => navigate(`/job-cards/${jobCard.job_card_id}`)}
+                    onClick={() => navigate(`/job-cards/${jobCard.id}`)}
                   >
                     <TableCell className="font-medium">{jobCard.serial_no}</TableCell>
                     <TableCell>{jobCard.size || '—'}</TableCell>
@@ -232,7 +232,7 @@ export default function OrderDetail() {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation()
-                          navigate(`/job-cards/${jobCard.job_card_id}`)
+                          navigate(`/job-cards/${jobCard.id}`)
                         }}
                       >
                         <Eye className="h-4 w-4" />
