@@ -136,6 +136,8 @@ export default function NewInspection() {
 
       // Ensure worker record exists for current user
       console.log('Checking for worker record...')
+      let worker = null
+
       const { data: existingWorker, error: workerCheckError } = await supabase
         .from('workers')
         .select('*')
@@ -150,7 +152,7 @@ export default function NewInspection() {
       if (!existingWorker) {
         // Auto-create worker record for this user
         console.log('No worker record found, creating one...')
-        const { error: workerCreateError } = await supabase
+        const { data: newWorker, error: workerCreateError } = await supabase
           .from('workers')
           .insert({
             full_name: inspectorName,
@@ -159,23 +161,37 @@ export default function NewInspection() {
             is_active: true,
             user_id: user.id,
           })
+          .select()
+          .single()
 
-        if (workerCreateError) {
+        if (workerCreateError || !newWorker) {
           console.error('Error creating worker record:', workerCreateError)
           throw new Error('Failed to create worker profile. Please contact administrator.')
         }
 
+        worker = newWorker
         console.log('Worker record created successfully')
       } else {
+        worker = existingWorker
         console.log('Worker record exists for user')
       }
+
+      // Get worker's primary key (try common field names)
+      const workerPK = worker.worker_code || worker.id || worker.worker_id || worker.code
+
+      if (!workerPK) {
+        console.error('Could not determine worker primary key:', worker)
+        throw new Error('Worker record is missing primary key')
+      }
+
+      console.log('Using worker PK as inspector_id:', workerPK)
 
       // Insert inspection report
       const { data: newInspection, error } = await supabase
         .from('inspection_reports')
         .insert({
           order_id: orderId,
-          inspector_id: user.id,
+          inspector_id: workerPK,
           inspection_number: inspectionNumber,
           inspection_date: new Date().toISOString(),
           overall_status: 'in_progress',
