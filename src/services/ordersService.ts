@@ -303,6 +303,60 @@ const ordersService = {
       return null
     }
   },
+
+  /**
+   * Fetches all job cards for a specific style/color combination
+   * @param style - Style number or name
+   * @param color - Color name
+   * @returns Promise with array of job cards and their orders
+   */
+  async getJobCardsByStyle(
+    style: string,
+    color: string
+  ): Promise<JobCard[]> {
+    try {
+      // First, find all orders with this style
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('order_id')
+        .or(`style_number.eq.${style},style_name.eq.${style}`)
+
+      if (ordersError) {
+        console.error(`Error fetching orders for style ${style}:`, ordersError.message)
+        return []
+      }
+
+      if (!orders || orders.length === 0) {
+        return []
+      }
+
+      const orderIds = orders.map((order: { order_id: string }) => order.order_id)
+
+      // Fetch all job cards for these orders with matching color
+      const { data: jobCards, error: jobCardsError } = await supabase
+        .from('job_cards')
+        .select('*')
+        .in('order_id', orderIds)
+        .eq('color', color)
+        .order('serial_no', { ascending: true })
+
+      if (jobCardsError) {
+        console.error(
+          `Error fetching job cards for style ${style}, color ${color}:`,
+          jobCardsError.message
+        )
+        return []
+      }
+
+      return (jobCards as JobCard[]) || []
+    } catch (error) {
+      console.error(
+        `Unexpected error fetching job cards for style ${style}, color ${color}:`,
+        error
+      )
+      return []
+    }
+  },
 }
 
 export default ordersService
