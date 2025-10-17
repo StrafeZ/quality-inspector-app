@@ -24,6 +24,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  ClipboardCheck,
 } from 'lucide-react'
 
 export default function OrderDetail() {
@@ -79,6 +80,14 @@ export default function OrderDetail() {
         <PageHeader
           title={order.production_po || order.order_id || 'Order Details'}
           description={`${order.customer_name || 'Unknown Customer'} | ${order.order_name || order.order_id || 'N/A'}`}
+          actions={
+            <Button
+              onClick={() => navigate(`/inspections/new?style=${order.style_number}&color=${order.color}&orderId=${order.order_id}`)}
+            >
+              <ClipboardCheck className="h-4 w-4 mr-2" />
+              Start Inspection
+            </Button>
+          }
         />
       </div>
 
