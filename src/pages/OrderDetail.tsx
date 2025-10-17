@@ -192,7 +192,7 @@ export default function OrderDetail() {
             <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <p className="text-lg font-medium">No job cards yet</p>
             <p className="mt-2">Job cards will appear here once created</p>
-          </CardContent>
+          </div>
         </CardContent>
       </Card>
     </div>
