@@ -17,6 +17,17 @@ export interface Order {
   created_at: string
 }
 
+export interface JobCard {
+  job_card_id: string
+  order_id: string
+  serial_no: number
+  size: string | null
+  color: string | null
+  status: string | null
+  created_at: string
+  updated_at: string | null
+}
+
 const ordersService = {
   /**
    * Fetches all active orders (not completed or archived)
@@ -169,6 +180,66 @@ const ordersService = {
     } catch (error) {
       console.error(
         `Unexpected error fetching order with job cards ${identifier}:`,
+        error
+      )
+      return null
+    }
+  },
+
+  /**
+   * Fetches an order with full job cards data and alterations count
+   * @param identifier - The production_po or order_id to fetch
+   * @returns Promise with order, job cards array, and counts, or null if not found
+   */
+  async getOrderWithJobCardsData(
+    identifier: string
+  ): Promise<{
+    order: Order
+    jobCards: JobCard[]
+    jobCardsCount: number
+    alterationsCount: number
+  } | null> {
+    try {
+      // First fetch the order (resolves production_po OR order_id)
+      const order = await this.getOrderById(identifier)
+      if (!order) return null
+
+      // Fetch actual job cards using the order's UUID
+      const { data: jobCards, error: jobCardsError } = await supabase
+        .from('job_cards')
+        .select('*')
+        .eq('order_id', order.order_id)
+        .order('serial_no', { ascending: true })
+
+      if (jobCardsError) {
+        console.error(
+          `Error fetching job cards for order ${order.order_id}:`,
+          jobCardsError.message
+        )
+      }
+
+      // Fetch alterations count using the order's UUID
+      const { count: alterationsCount, error: alterationsError } = await supabase
+        .from('alterations')
+        .select('*', { count: 'exact', head: true })
+        .eq('order_id', order.order_id)
+
+      if (alterationsError) {
+        console.error(
+          `Error fetching alterations count for order ${order.order_id}:`,
+          alterationsError.message
+        )
+      }
+
+      return {
+        order,
+        jobCards: (jobCards as JobCard[]) || [],
+        jobCardsCount: jobCards?.length || 0,
+        alterationsCount: alterationsCount ?? 0,
+      }
+    } catch (error) {
+      console.error(
+        `Unexpected error fetching order with job cards data ${identifier}:`,
         error
       )
       return null

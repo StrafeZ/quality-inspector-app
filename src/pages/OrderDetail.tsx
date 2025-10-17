@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
-import { useOrderWithAlterations } from '@/hooks/useOrders'
+import { useOrderWithJobCardsData } from '@/hooks/useOrders'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   ArrowLeft,
   Package,
@@ -20,7 +28,7 @@ import {
 export default function OrderDetail() {
   const { orderId } = useParams<{ orderId: string }>()
   const navigate = useNavigate()
-  const { data: orderData, isLoading } = useOrderWithAlterations(orderId!)
+  const { data: orderData, isLoading } = useOrderWithJobCardsData(orderId!)
   const [detailsExpanded, setDetailsExpanded] = useState(true)
 
   // Loading state
@@ -51,7 +59,7 @@ export default function OrderDetail() {
     )
   }
 
-  const { order, alterationsCount, jobCardsCount } = orderData
+  const { order, alterationsCount, jobCardsCount, jobCards } = orderData
 
   return (
     <div>
@@ -172,17 +180,52 @@ export default function OrderDetail() {
         )}
       </Card>
 
-      {/* Job Cards Section (Placeholder) */}
+      {/* Job Cards Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Job Cards (0)</CardTitle>
+          <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-gray-500">
-            <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-lg font-medium">No job cards yet</p>
-            <p className="mt-2">Job cards will appear here once created</p>
-          </div>
+          {jobCards.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+              <p className="text-lg font-medium">No job cards yet</p>
+              <p className="mt-2">Job cards will appear here once created</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Serial No.</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Color</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jobCards.map((jobCard) => (
+                  <TableRow key={jobCard.job_card_id}>
+                    <TableCell className="font-medium">{jobCard.serial_no}</TableCell>
+                    <TableCell>{jobCard.size || '—'}</TableCell>
+                    <TableCell>{jobCard.color || '—'}</TableCell>
+                    <TableCell>
+                      {jobCard.status ? (
+                        <Badge variant="secondary">{jobCard.status}</Badge>
+                      ) : (
+                        '—'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {jobCard.created_at
+                        ? format(new Date(jobCard.created_at), 'MMM dd, yyyy')
+                        : '—'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

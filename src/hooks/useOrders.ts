@@ -54,3 +54,17 @@ export function useOrderWithJobCards(orderId: string) {
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
+
+/**
+ * Hook to fetch an order with full job cards data and alterations count
+ * @param identifier - The production_po or order_id to fetch
+ * @returns React Query result with order, job cards array, and counts
+ */
+export function useOrderWithJobCardsData(identifier: string) {
+  return useQuery({
+    queryKey: ['order-with-job-cards-data', identifier],
+    queryFn: () => ordersService.getOrderWithJobCardsData(identifier),
+    enabled: !!identifier,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}

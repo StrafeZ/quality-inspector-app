@@ -38,8 +38,8 @@ export default function Orders() {
     return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
-  const handleRowClick = (orderId: string) => {
-    navigate(`/orders/${orderId}`)
+  const handleRowClick = (identifier: string) => {
+    navigate(`/orders/${identifier}`)
   }
 
   return (
@@ -110,19 +110,18 @@ export default function Orders() {
                   <TableHead>Quantity</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Delivery Date</TableHead>
-                  <TableHead>PO Number</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {orders.map((order) => (
                   <TableRow
                     key={order.order_id}
-                    onClick={() => handleRowClick(order.order_id)}
+                    onClick={() => handleRowClick(order.production_po || order.order_id)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
-                    <TableCell className="font-medium">{order.order_name || order.order_id || '—'}</TableCell>
+                    <TableCell className="font-medium">{order.production_po || order.order_id}</TableCell>
                     <TableCell>{order.customer_name || '—'}</TableCell>
-                    <TableCell>{order.style_number || '—'}</TableCell>
+                    <TableCell>{order.style_name || '—'}</TableCell>
                     <TableCell>{order.total_quantity || 0}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(order.status || 'pending')} variant="secondary">
@@ -134,7 +133,6 @@ export default function Orders() {
                         ? format(new Date(order.delivery_date), 'MMM dd, yyyy')
                         : '—'}
                     </TableCell>
-                    <TableCell>{order.production_po || '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
