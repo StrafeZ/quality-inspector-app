@@ -82,7 +82,7 @@ export default function OrderDetail() {
           description={`${order.customer_name || 'Unknown Customer'} | ${order.order_name || order.order_id || 'N/A'}`}
           actions={
             <Button
-              onClick={() => navigate(`/inspections/new?style=${order.style_number}&color=${order.color}&orderId=${order.order_id}`)}
+              onClick={() => navigate(`/inspections/new?style=${order.style_name}&color=${order.color}&orderId=${order.order_id}`)}
             >
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Start Inspection

@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useOrder, useJobCardsByStyle } from '@/hooks/useOrders'
@@ -52,8 +52,7 @@ export default function NewInspection() {
     color
   )
 
-  const order = orderData?.order
-  const inspectionNumber = generateInspectionNumber(order?.production_po)
+  const inspectionNumber = generateInspectionNumber(orderData?.production_po)
 
   // Loading state
   if (orderLoading || jobCardsLoading) {
@@ -70,7 +69,7 @@ export default function NewInspection() {
   }
 
   // Order not found
-  if (!order) {
+  if (!orderData) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -121,7 +120,7 @@ export default function NewInspection() {
           general_notes: generalNotes || null,
           inspector_comments: inspectorComments || null,
           email_sent: false,
-          customer: order.customer_name,
+          customer: orderData.customer_name,
           style: style,
           color: color,
           size: jobCards[0].size,
@@ -151,7 +150,7 @@ export default function NewInspection() {
           variant="ghost"
           size="sm"
           onClick={() =>
-            navigate(`/orders/${order.production_po || order.order_id}`)
+            navigate(`/orders/${orderData.production_po || orderData.order_id}`)
           }
           className="mb-4"
         >
@@ -214,7 +213,7 @@ export default function NewInspection() {
                 <User className="h-4 w-4" />
                 Customer
               </p>
-              <p className="font-medium">{order.customer_name || 'N/A'}</p>
+              <p className="font-medium">{orderData.customer_name || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 flex items-center gap-2">

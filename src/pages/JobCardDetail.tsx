@@ -193,7 +193,7 @@ export default function JobCardDetail() {
         <Alert className="mb-8 border-blue-200 bg-blue-50">
           <ClipboardCheck className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-900">
-            No inspection has been started for this style ({order.style_number || 'N/A'} - {jobCard.color || 'N/A'}).
+            No inspection has been started for this style ({order.style_name || 'N/A'} - {jobCard.color || 'N/A'}).
             The pattern master must start an inspection from the order page before alterations can be added to individual garments.
           </AlertDescription>
         </Alert>
@@ -439,7 +439,7 @@ export default function JobCardDetail() {
             <AlertDialogDescription>
               An inspection has not been started for this style/color combination:
               <div className="mt-2 font-medium">
-                Style: {order.style_number || 'N/A'}<br/>
+                Style: {order.style_name || 'N/A'}<br/>
                 Color: {jobCard.color || 'N/A'}
               </div>
               <div className="mt-3">
