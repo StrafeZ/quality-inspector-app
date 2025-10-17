@@ -28,14 +28,18 @@ export interface JobCard {
   updated_at: string | null
 }
 
+export interface OrderWithJobCards extends Order {
+  jobCardsCount: number
+}
+
 const ordersService = {
   /**
-   * Fetches all active orders (not completed or archived)
-   * @returns Promise<Order[]> - Array of active orders
+   * Fetches all active orders (not completed or archived) with job card counts
+   * @returns Promise<OrderWithJobCards[]> - Array of active orders with job card counts
    */
-  async getActiveOrders(): Promise<Order[]> {
+  async getActiveOrders(): Promise<OrderWithJobCards[]> {
     try {
-      const { data, error } = await supabase
+      const { data: orders, error } = await supabase
         .from('orders')
         .select('*')
         .not('status', 'in', '(completed,archived)')
@@ -46,7 +50,22 @@ const ordersService = {
         return []
       }
 
-      return data as Order[]
+      // Fetch job card counts for each order
+      const ordersWithCounts = await Promise.all(
+        (orders || []).map(async (order) => {
+          const { count } = await supabase
+            .from('job_cards')
+            .select('*', { count: 'exact', head: true })
+            .eq('order_id', order.order_id)
+
+          return {
+            ...order,
+            jobCardsCount: count || 0,
+          } as OrderWithJobCards
+        })
+      )
+
+      return ordersWithCounts
     } catch (error) {
       console.error('Unexpected error fetching active orders:', error)
       return []

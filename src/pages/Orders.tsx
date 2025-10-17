@@ -122,7 +122,7 @@ export default function Orders() {
                     <TableCell className="font-medium">{order.production_po || order.order_id}</TableCell>
                     <TableCell>{order.customer_name || '—'}</TableCell>
                     <TableCell>{order.style_name || '—'}</TableCell>
-                    <TableCell>{order.total_quantity || 0}</TableCell>
+                    <TableCell>{order.jobCardsCount || 0}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(order.status || 'pending')} variant="secondary">
                         {formatStatus(order.status || 'pending')}
