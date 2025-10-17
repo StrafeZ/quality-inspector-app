@@ -138,7 +138,7 @@ export default function NewInspection() {
       console.log('Checking for worker record...')
       const { data: existingWorker, error: workerCheckError } = await supabase
         .from('workers')
-        .select('worker_id, user_id')
+        .select('*')
         .eq('user_id', user.id)
         .maybeSingle()
 
@@ -167,7 +167,7 @@ export default function NewInspection() {
 
         console.log('Worker record created successfully')
       } else {
-        console.log('Worker record exists:', existingWorker.worker_id)
+        console.log('Worker record exists for user')
       }
 
       // Insert inspection report
