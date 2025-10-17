@@ -28,6 +28,20 @@ export function useOrder(orderId: string) {
 }
 
 /**
+ * Hook to fetch an order with alterations count
+ * @param orderId - The order ID to fetch
+ * @returns React Query result with order and alterations count data
+ */
+export function useOrderWithAlterations(orderId: string) {
+  return useQuery({
+    queryKey: ['order-with-alterations', orderId],
+    queryFn: () => ordersService.getOrderWithAlterations(orderId),
+    enabled: !!orderId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+/**
  * Hook to fetch an order with job cards count
  * @param orderId - The order ID to fetch
  * @returns React Query result with order and job card count data

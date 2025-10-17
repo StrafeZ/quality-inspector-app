@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
-import { useOrder } from '@/hooks/useOrders'
+import { useOrderWithAlterations } from '@/hooks/useOrders'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import {
   ArrowLeft,
   Package,
-  CheckCircle,
   Clock,
   AlertTriangle,
   Edit,
@@ -22,7 +21,7 @@ import {
 export default function OrderDetail() {
   const { orderId } = useParams<{ orderId: string }>()
   const navigate = useNavigate()
-  const { data: orderData, isLoading } = useOrder(orderId!)
+  const { data: orderData, isLoading } = useOrderWithAlterations(orderId!)
   const [detailsExpanded, setDetailsExpanded] = useState(true)
 
   // Loading state
@@ -38,7 +37,7 @@ export default function OrderDetail() {
   }
 
   // Order not found
-  if (!orderData) {
+  if (!orderData || !orderData.order) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -53,7 +52,7 @@ export default function OrderDetail() {
     )
   }
 
-  const order = orderData
+  const { order, alterationsCount } = orderData
 
   return (
     <div>
@@ -93,11 +92,10 @@ export default function OrderDetail() {
           icon={Package}
         />
         <StatsCard
-          title="Completed"
-          value="0"
-          subtitle="Job cards done"
-          icon={CheckCircle}
-          trend={{ value: '0%', positive: true }}
+          title="Alterations"
+          value={alterationsCount.toString()}
+          subtitle="Total alterations"
+          icon={AlertTriangle}
         />
         <StatsCard
           title="Delivery"
@@ -113,7 +111,7 @@ export default function OrderDetail() {
           title="Status"
           value={order.status || 'Unknown'}
           subtitle="Current status"
-          icon={AlertTriangle}
+          icon={Package}
         />
       </div>
 
