@@ -23,6 +23,7 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
+  Eye,
 } from 'lucide-react'
 
 export default function OrderDetail() {
@@ -183,7 +184,12 @@ export default function OrderDetail() {
       {/* Job Cards Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {jobCards.length === 0 ? (
@@ -196,30 +202,41 @@ export default function OrderDetail() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Serial No.</TableHead>
+                  <TableHead>Serial No</TableHead>
                   <TableHead>Size</TableHead>
-                  <TableHead>Color</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>Inspection</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {jobCards.map((jobCard) => (
-                  <TableRow key={jobCard.job_card_id}>
+                  <TableRow
+                    key={jobCard.job_card_id}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => navigate(`/job-cards/${jobCard.job_card_id}`)}
+                  >
                     <TableCell className="font-medium">{jobCard.serial_no}</TableCell>
                     <TableCell>{jobCard.size || '—'}</TableCell>
-                    <TableCell>{jobCard.color || '—'}</TableCell>
                     <TableCell>
-                      {jobCard.status ? (
-                        <Badge variant="secondary">{jobCard.status}</Badge>
-                      ) : (
-                        '—'
-                      )}
+                      <Badge className="bg-blue-100 text-blue-800">
+                        {jobCard.status || 'created'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      {jobCard.created_at
-                        ? format(new Date(jobCard.created_at), 'MMM dd, yyyy')
-                        : '—'}
+                      <span className="text-gray-400 text-sm">Not inspected</span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/job-cards/${jobCard.job_card_id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
