@@ -82,3 +82,18 @@ export function useJobCard(jobCardId: string) {
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
+
+/**
+ * Hook to fetch all job cards for a specific style/color combination
+ * @param style - Style number or name
+ * @param color - Color name
+ * @returns React Query result with job cards array
+ */
+export function useJobCardsByStyle(style: string, color: string) {
+  return useQuery({
+    queryKey: ['job-cards-by-style', style, color],
+    queryFn: () => ordersService.getJobCardsByStyle(style, color),
+    enabled: !!style && !!color,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
