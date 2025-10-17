@@ -3,11 +3,11 @@
  */
 
 /**
- * Generate a unique inspection number based on production PO and timestamp
- * @param productionPo - The production PO number from the order
+ * Generate a unique inspection number based on order ID and timestamp
+ * @param orderId - The order ID from the order
  * @returns Formatted inspection number (e.g., INS-ORD-2025-1003-20250110-143052)
  */
-export function generateInspectionNumber(productionPo?: string | null): string {
+export function generateInspectionNumber(orderId?: string | null): string {
   const now = new Date()
 
   // Format date as YYYYMMDD
@@ -22,8 +22,8 @@ export function generateInspectionNumber(productionPo?: string | null): string {
   const seconds = String(now.getSeconds()).padStart(2, '0')
   const timeStr = `${hours}${minutes}${seconds}`
 
-  // Use production PO or fallback to 'UNKNOWN'
-  const po = productionPo || 'UNKNOWN'
+  // Use order ID or fallback to 'UNKNOWN'
+  const orderRef = orderId || 'UNKNOWN'
 
-  return `INS-${po}-${dateStr}-${timeStr}`
+  return `INS-${orderRef}-${dateStr}-${timeStr}`
 }

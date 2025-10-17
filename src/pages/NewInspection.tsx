@@ -56,7 +56,15 @@ export default function NewInspection() {
     enabled: !!orderId,
   })
 
-  const inspectionNumber = generateInspectionNumber(orderData?.production_po)
+  const inspectionNumber = generateInspectionNumber(orderData?.order_id)
+
+  // Calculate total quantity from sizes field
+  const totalQuantity = orderData?.sizes
+    ? orderData.sizes.split('|').reduce((sum, sizeStr) => {
+        const qty = parseInt(sizeStr.split(':')[1] || '0', 10)
+        return sum + qty
+      }, 0)
+    : 0
 
   // Loading state
   if (orderLoading || inspectionLoading) {
@@ -126,7 +134,7 @@ export default function NewInspection() {
           customer: orderData.customer_name,
           style: style,
           color: color,
-          inspector_name: user.email || 'Unknown Inspector',
+          inspector_name: user?.email || user?.id || 'Inspector',
         })
         .select()
         .single()
@@ -151,7 +159,7 @@ export default function NewInspection() {
           variant="ghost"
           size="sm"
           onClick={() =>
-            navigate(`/orders/${orderData.production_po || orderData.order_id}`)
+            navigate(`/orders/${orderData.order_id}`)
           }
           className="mb-4"
         >
@@ -219,7 +227,7 @@ export default function NewInspection() {
                 <Package className="h-4 w-4" />
                 Order
               </p>
-              <p className="font-medium">{orderData.production_po || orderData.order_id}</p>
+              <p className="font-medium">{orderData.order_id}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 flex items-center gap-2">
@@ -247,7 +255,7 @@ export default function NewInspection() {
                 <Package className="h-4 w-4" />
                 Total Job Cards
               </p>
-              <p className="font-medium">{orderData.total_quantity || 0}</p>
+              <p className="font-medium">{totalQuantity}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 flex items-center gap-2">

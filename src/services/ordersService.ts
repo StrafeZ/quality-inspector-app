@@ -1,20 +1,29 @@
 import { supabase } from '@/lib/supabase'
 
 export interface Order {
+  id: number
   order_id: string
-  order_name: string
   customer_name: string
-  order_type: string
-  total_quantity: number
-  delivery_date: string | null
-  production_po: string | null
-  customer_po: string | null
-  status: string
-  style_number: string | null
-  style_name: string | null
-  fabric_type: string | null
+  style_name: string
   color: string | null
+  sizes: string | null
+  stitcher_rate: number | null
+  fuser_rate: number | null
+  order_date: string | null
+  delivery_date: string | null
+  status: string | null
   created_at: string
+  updated_at: string | null
+  sheets_row_number: number | null
+  order_type: string
+  sample_purpose: string | null
+  leather_type: string | null
+  lot_number: string | null
+  leather_description: string | null
+  customer_id: string | null
+  production_order_id: string | null
+  created_from: string | null
+  job_cards_pdf_url: string | null
 }
 
 export interface JobCard {
@@ -73,29 +82,18 @@ const ordersService = {
   },
 
   /**
-   * Fetches a single order by production_po or order_id
-   * @param identifier - The production_po or order_id to fetch
+   * Fetches a single order by order_id
+   * @param identifier - The order_id to fetch
    * @returns Promise<Order | null> - The order or null if not found
    */
   async getOrderById(identifier: string): Promise<Order | null> {
     try {
-      // Try to fetch by production_po first (for URLs like PRD-2025-011)
-      let { data, error } = await supabase
+      // Fetch by order_id
+      const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('production_po', identifier)
+        .eq('order_id', identifier)
         .single()
-
-      // If not found, try by order_id (UUID)
-      if (error || !data) {
-        const result = await supabase
-          .from('orders')
-          .select('*')
-          .eq('order_id', identifier)
-          .single()
-        data = result.data
-        error = result.error
-      }
 
       if (error) {
         console.error(`Error fetching order ${identifier}:`, error.message)
