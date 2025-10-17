@@ -251,7 +251,7 @@ export default function JobCardDetail() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => navigate(`/inspections/${inspection.id}`)}
+                onClick={() => navigate(`/inspections/report/${inspection.id}`)}
               >
                 <FileText className="h-4 w-4 mr-2" />
                 View Full Report
@@ -380,7 +380,7 @@ export default function JobCardDetail() {
       {/* Action Buttons */}
       <div className="flex gap-4">
         {isInspected ? (
-          <Button onClick={() => navigate(`/inspections/${inspection.id}`)}>
+          <Button onClick={() => navigate(`/inspections/report/${inspection.id}`)}>
             <FileText className="h-4 w-4 mr-2" />
             View Inspection Report
           </Button>
