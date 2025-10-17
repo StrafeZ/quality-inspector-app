@@ -10,6 +10,10 @@ ADD COLUMN IF NOT EXISTS order_id TEXT REFERENCES orders(order_id);
 ALTER TABLE inspection_reports
 ALTER COLUMN job_card_id DROP NOT NULL;
 
+-- Make inspector_name nullable (safety measure for edge cases)
+ALTER TABLE inspection_reports
+ALTER COLUMN inspector_name DROP NOT NULL;
+
 -- Add index for better query performance
 CREATE INDEX IF NOT EXISTS idx_inspection_reports_order_id
 ON inspection_reports(order_id);

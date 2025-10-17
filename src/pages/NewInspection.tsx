@@ -119,6 +119,21 @@ export default function NewInspection() {
     setIsSubmitting(true)
 
     try {
+      // Calculate inspector_name with proper validation and trimming
+      const inspectorName =
+        (user.email && user.email.trim()) ||
+        (user.id && user.id.trim()) ||
+        'Inspector'
+
+      // Debug logging to help diagnose any issues
+      console.log('Creating inspection with inspector:', {
+        userId: user.id,
+        userEmail: user.email,
+        inspectorName,
+        orderId,
+        inspectionNumber,
+      })
+
       // Insert inspection report
       const { data: newInspection, error } = await supabase
         .from('inspection_reports')
@@ -134,13 +149,14 @@ export default function NewInspection() {
           customer: orderData.customer_name,
           style: style,
           color: color,
-          inspector_name: user?.email || user?.id || 'Inspector',
+          inspector_name: inspectorName,
         })
         .select()
         .single()
 
       if (error) throw error
 
+      console.log('Inspection created successfully:', newInspection.id)
       toast.success('Inspection started. You can now scan job cards.')
       navigate(`/inspections/report/${newInspection.id}`)
     } catch (error: any) {
