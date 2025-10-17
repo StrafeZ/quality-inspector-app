@@ -140,7 +140,7 @@ const ordersService = {
         .select('id')
         .eq('order_id', order.order_id)
 
-      const jobCardIds = jobCardsForAlterations?.map((jc) => jc.id) || []
+      const jobCardIds = jobCardsForAlterations?.map((jc: { id: string }) => jc.id) || []
 
       const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
@@ -258,7 +258,7 @@ const ordersService = {
 
       // Fetch alterations count by joining through job_cards
       // Note: alterations table doesn't have order_id, it has job_card_id
-      const jobCardIds = jobCards?.map((jc) => jc.id) || []
+      const jobCardIds = jobCards?.map((jc: JobCard) => jc.id) || []
 
       const { count: alterationsCount, error: alterationsError } = await supabase
         .from('alterations')
