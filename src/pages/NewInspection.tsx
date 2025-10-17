@@ -247,7 +247,7 @@ export default function NewInspection() {
                 <Package className="h-4 w-4" />
                 Total Job Cards
               </p>
-              <p className="font-medium">{orderData.order_quantity || 0}</p>
+              <p className="font-medium">{orderData.total_quantity || 0}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600 flex items-center gap-2">
