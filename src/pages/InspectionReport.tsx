@@ -114,16 +114,21 @@ export default function InspectionReport() {
         <PageHeader
           title={`Inspection Report: ${inspection.inspection_number}`}
           description={`${inspection.customer} | ${inspection.style} - ${inspection.color}`}
-          actions={
-            inspection.overall_status === 'in_progress' ? (
-              <Button onClick={() => navigate(`/inspections/complete/${inspectionId}`)}>
-                <ClipboardCheck className="h-4 w-4 mr-2" />
-                Complete Inspection
-              </Button>
-            ) : undefined
-          }
         />
       </div>
+
+      {/* In Progress Alert */}
+      {inspection.overall_status === 'in_progress' && (
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
+          <ClipboardCheck className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-900 flex items-center justify-between">
+            <span>This inspection is in progress. Complete it when you're done reviewing all garments.</span>
+            <Button onClick={() => navigate(`/inspections/complete/${inspectionId}`)}>
+              Complete Inspection
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
