@@ -1,54 +1,147 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Package, ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { format } from 'date-fns'
+import PageHeader from '@/components/layout/PageHeader'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Search, Download, Package, Loader2 } from 'lucide-react'
+import { useOrders } from '@/hooks/useOrders'
 
 export default function Orders() {
   const navigate = useNavigate()
+  const { data: orders, isLoading, error } = useOrders()
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-blue-100 text-blue-800'
+      case 'in_progress':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'pending':
+        return 'bg-gray-100 text-gray-800'
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const formatStatus = (status: string) => {
+    return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  }
+
+  const handleRowClick = (orderId: string) => {
+    navigate(`/orders/${orderId}`)
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/dashboard')}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Orders</h1>
-            <p className="text-sm text-muted-foreground">
-              View and manage production orders
-            </p>
-          </div>
-        </div>
+    <div>
+      {/* Page Header */}
+      <PageHeader
+        title="Orders"
+        description="View and manage active production orders"
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </>
+        }
+      />
 
-        {/* Placeholder Card */}
+      {/* Loading State */}
+      {isLoading && (
         <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Package className="h-6 w-6 text-primary" />
-              <div>
-                <CardTitle>Orders List</CardTitle>
-                <CardDescription>
-                  Browse all production orders
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <Package className="h-24 w-24 text-muted-foreground" />
-              <p className="text-center text-muted-foreground">
-                Orders functionality coming soon
-              </p>
-            </div>
+          <CardContent className="py-12 text-center">
+            <Loader2 className="h-12 w-12 mx-auto mb-4 text-gray-400 animate-spin" />
+            <p className="text-lg font-medium text-gray-900">Loading orders...</p>
+            <p className="mt-2 text-gray-600">Please wait while we fetch your orders</p>
           </CardContent>
         </Card>
-      </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Package className="h-12 w-12 mx-auto mb-4 text-red-400" />
+            <p className="text-lg font-medium text-gray-900">Error loading orders</p>
+            <p className="mt-2 text-gray-600">Please try again later</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && !error && orders && orders.length === 0 && (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-lg font-medium text-gray-900">No active orders found</p>
+            <p className="mt-2 text-gray-600">
+              Active orders will appear here when they are created
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Orders Table */}
+      {!isLoading && !error && orders && orders.length > 0 && (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Style</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Delivery Date</TableHead>
+                  <TableHead>PO Number</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow
+                    key={order.order_id}
+                    onClick={() => handleRowClick(order.order_id)}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <TableCell className="font-medium">{order.order_name}</TableCell>
+                    <TableCell>{order.customer_name}</TableCell>
+                    <TableCell>{order.style_number || '—'}</TableCell>
+                    <TableCell>{order.total_quantity}</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(order.status)} variant="secondary">
+                        {formatStatus(order.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {order.delivery_date
+                        ? format(new Date(order.delivery_date), 'MMM dd, yyyy')
+                        : '—'}
+                    </TableCell>
+                    <TableCell>{order.production_po || '—'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

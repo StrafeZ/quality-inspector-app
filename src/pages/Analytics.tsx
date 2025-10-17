@@ -1,54 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { BarChart3, ArrowLeft } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import PageHeader from '@/components/layout/PageHeader'
+import { Card, CardContent } from '@/components/ui/card'
+import { BarChart3 } from 'lucide-react'
 
 export default function Analytics() {
-  const navigate = useNavigate()
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/dashboard')}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-            <p className="text-sm text-muted-foreground">
-              Quality metrics and performance insights
-            </p>
-          </div>
-        </div>
+    <div>
+      <PageHeader
+        title="Analytics"
+        description="Quality metrics and performance insights"
+      />
 
-        {/* Placeholder Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <BarChart3 className="h-6 w-6 text-primary" />
-              <div>
-                <CardTitle>Quality Metrics</CardTitle>
-                <CardDescription>
-                  Track inspection trends and performance
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
-              <BarChart3 className="h-24 w-24 text-muted-foreground" />
-              <p className="text-center text-muted-foreground">
-                Analytics dashboard coming soon
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent className="py-12 text-center">
+          <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+          <p className="text-lg font-medium text-gray-900">Analytics coming soon</p>
+          <p className="mt-2 text-gray-600">
+            Quality analytics and trends will be displayed here
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }
