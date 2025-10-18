@@ -260,7 +260,7 @@ const ordersService = {
       // Fetch stitcher names from job_card_status_history
       const jobCardIds = jobCards?.map((jc: any) => jc.id) || []
 
-      const { data: stitcherData, error: stitcherError } = await supabase
+      const { data: stitcherData } = await supabase
         .from('job_card_status_history')
         .select('job_card_id, worker_name')
         .in('job_card_id', jobCardIds.length > 0 ? jobCardIds : [''])
