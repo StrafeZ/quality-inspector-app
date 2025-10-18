@@ -2,6 +2,20 @@ import { useQuery } from '@tanstack/react-query'
 import inspectionService from '@/services/inspectionService'
 
 /**
+ * Hook to check if inspection report exists for an order
+ * @param orderId - Order ID
+ * @returns React Query result with inspection data, loading state, and error
+ */
+export function useInspectionByOrder(orderId: string) {
+  return useQuery({
+    queryKey: ['inspection-by-order', orderId],
+    queryFn: () => inspectionService.getInspectionByOrderId(orderId),
+    enabled: !!orderId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+}
+
+/**
  * Hook to check if inspection report exists for a style/color combination
  * @param style - Style name
  * @param color - Color name

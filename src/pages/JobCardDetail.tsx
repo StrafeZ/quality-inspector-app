@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { useJobCard } from '@/hooks/useOrders'
-import { useInspectionByStyle, useAlterationsByJobCard } from '@/hooks/useInspections'
+import { useInspectionByOrder, useAlterationsByJobCard } from '@/hooks/useInspections'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
@@ -52,15 +52,11 @@ export default function JobCardDetail() {
   const order = jobCardData?.order
   const jobCard = jobCardData?.jobCard
 
-  // Fetch inspection report if we have style and color
-  const { data: inspection } = useInspectionByStyle(
-    order?.style_name || '',
-    order?.color || ''
-  )
+  // Fetch inspection report by order ID
+  const { data: inspection } = useInspectionByOrder(order?.order_id || '')
 
   // Add debug logging
-  console.log('JobCardDetail - style:', order?.style_name)
-  console.log('JobCardDetail - color:', order?.color)
+  console.log('JobCardDetail - order_id:', order?.order_id)
   console.log('JobCardDetail - inspection:', inspection)
 
   // Fetch alterations for this job card
@@ -193,7 +189,7 @@ export default function JobCardDetail() {
         <Alert className="mb-8 border-blue-200 bg-blue-50">
           <ClipboardCheck className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-900">
-            No inspection has been started for this style ({order.style_name || 'N/A'} - {jobCard.color || 'N/A'}).
+            No inspection has been started for this order ({order.order_id}).
             The pattern master must start an inspection from the order page before alterations can be added to individual garments.
           </AlertDescription>
         </Alert>
@@ -437,10 +433,11 @@ export default function JobCardDetail() {
           <AlertDialogHeader>
             <AlertDialogTitle>Inspection Not Started</AlertDialogTitle>
             <AlertDialogDescription>
-              An inspection has not been started for this style/color combination:
+              An inspection has not been started for this order:
               <div className="mt-2 font-medium">
+                Order: {order.order_id}<br/>
                 Style: {order.style_name || 'N/A'}<br/>
-                Color: {jobCard.color || 'N/A'}
+                Color: {order.color || 'N/A'}
               </div>
               <div className="mt-3">
                 The pattern master must start an inspection from the order page before you can add alterations to individual garments.

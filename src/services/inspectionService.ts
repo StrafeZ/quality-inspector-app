@@ -38,6 +38,44 @@ export interface Alteration {
 
 const inspectionService = {
   /**
+   * Check if inspection report exists for an order
+   * @param orderId - Order ID
+   * @returns Promise<InspectionReport | null> - First matching inspection or null
+   */
+  async getInspectionByOrderId(orderId: string): Promise<InspectionReport | null> {
+    try {
+      console.log(`[inspectionService] Querying inspections for order_id: "${orderId}"`)
+
+      const { data, error } = await supabase
+        .from('inspection_reports')
+        .select('*')
+        .eq('order_id', orderId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (error) {
+        console.error(
+          `[inspectionService] Error fetching inspection for order ${orderId}:`,
+          error.message
+        )
+        return null
+      }
+
+      console.log(`[inspectionService] Query result:`, data ? 'Found inspection' : 'No inspection found')
+      console.log(`[inspectionService] Inspection data:`, data)
+
+      return data as InspectionReport
+    } catch (error) {
+      console.error(
+        `[inspectionService] Unexpected error fetching inspection for order ${orderId}:`,
+        error
+      )
+      return null
+    }
+  },
+
+  /**
    * Check if inspection report exists for a style/color combination
    * @param style - Style name
    * @param color - Color name
