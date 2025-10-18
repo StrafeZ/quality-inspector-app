@@ -14,14 +14,14 @@ export function useOrders() {
 }
 
 /**
- * Hook to fetch a single order by ID
+ * Hook to fetch a single order with job cards data
  * @param orderId - The order ID to fetch
- * @returns React Query result with order data, loading state, and error
+ * @returns React Query result with order, job cards, and counts
  */
 export function useOrder(orderId: string) {
   return useQuery({
     queryKey: ['order', orderId],
-    queryFn: () => ordersService.getOrderById(orderId),
+    queryFn: () => ordersService.getOrderWithJobCardsData(orderId),
     enabled: !!orderId,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })

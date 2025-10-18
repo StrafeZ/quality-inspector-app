@@ -311,12 +311,7 @@ export default function OrderDetail() {
       {/* Job Cards Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
-            <Button variant="outline" size="sm">
-              View All
-            </Button>
-          </div>
+          <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
         </CardHeader>
         <CardContent>
           {jobCards.length === 0 ? (
@@ -331,6 +326,7 @@ export default function OrderDetail() {
                 <TableRow>
                   <TableHead>Serial No</TableHead>
                   <TableHead>Size</TableHead>
+                  <TableHead>Stitcher</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Inspection</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -345,6 +341,7 @@ export default function OrderDetail() {
                   >
                     <TableCell className="font-medium">{jobCard.serial_no}</TableCell>
                     <TableCell>{jobCard.size || '—'}</TableCell>
+                    <TableCell>{jobCard.stitcher_name || '—'}</TableCell>
                     <TableCell>
                       <Badge className="bg-blue-100 text-blue-800">
                         {jobCard.status || 'created'}

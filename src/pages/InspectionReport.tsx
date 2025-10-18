@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
-import { useInspectionById, useInspectionStats } from '@/hooks/useInspections'
-import { useJobCardsByStyle } from '@/hooks/useOrders'
+import { useInspectionById } from '@/hooks/useInspections'
+import { useOrderWithJobCardsData } from '@/hooks/useOrders'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
@@ -21,9 +21,9 @@ import {
   Package,
   ClipboardCheck,
   AlertTriangle,
-  TrendingUp,
-  Loader2,
+  CheckCircle2,
   Eye,
+  Loader2,
 } from 'lucide-react'
 
 export default function InspectionReport() {
@@ -31,24 +31,61 @@ export default function InspectionReport() {
   const navigate = useNavigate()
 
   // Fetch inspection with alterations
-  const { data: inspectionData, isLoading } = useInspectionById(inspectionId!)
+  const { data: inspectionData, isLoading: inspectionLoading } = useInspectionById(inspectionId!)
 
   const inspection = inspectionData?.inspection
   const alterations = inspectionData?.alterations || []
 
-  // Fetch stats and job cards for this style/color
-  const { data: stats } = useInspectionStats(
-    inspection?.style || '',
-    inspection?.color || ''
+  // Fetch order data with job cards
+  const { data: orderData, isLoading: orderLoading } = useOrderWithJobCardsData(
+    inspection?.order_id || ''
   )
 
-  const { data: jobCards = [] } = useJobCardsByStyle(
-    inspection?.style || '',
-    inspection?.color || ''
-  )
+  const order = orderData?.order
+  const jobCards = orderData?.jobCards || []
+  const jobCardsCount = orderData?.jobCardsCount || 0
+
+  // Calculate stats from fetched data
+  const scannedCount = new Set(alterations.map((a) => a.job_card_id)).size
+  const pendingCount = alterations.filter((a) => !a.is_corrected).length
+
+  // Helper functions
+  const getJobCardAlterations = (jobCardId: string) => {
+    return alterations.filter((a) => a.job_card_id === jobCardId)
+  }
+
+  const getInspectionStatusBadge = (jobCardId: string) => {
+    const count = getJobCardAlterations(jobCardId).length
+    if (count === 0) {
+      return <Badge className="bg-gray-100 text-gray-800">Not Scanned</Badge>
+    } else if (count <= 2) {
+      return <Badge className="bg-yellow-100 text-yellow-800">Minor Issues</Badge>
+    } else {
+      return <Badge className="bg-red-100 text-red-800">Major Issues</Badge>
+    }
+  }
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800'
+      case 'pass':
+        return 'bg-green-100 text-green-800'
+      case 'pass_with_notes':
+        return 'bg-blue-100 text-blue-800'
+      case 'minor_alterations':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'major_alterations':
+        return 'bg-orange-100 text-orange-800'
+      case 'reject':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
 
   // Loading state
-  if (isLoading) {
+  if (inspectionLoading || orderLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
@@ -75,29 +112,6 @@ export default function InspectionReport() {
     )
   }
 
-  // Helper function to get status badge color
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case 'pass':
-        return 'bg-green-100 text-green-800'
-      case 'pass_with_notes':
-        return 'bg-blue-100 text-blue-800'
-      case 'minor_alterations':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'major_alterations':
-        return 'bg-orange-100 text-orange-800'
-      case 'reject':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  // Helper function to count alterations for a job card
-  const getAlterationsCount = (jobCardId: string) => {
-    return alterations.filter((alt) => alt.job_card_id === jobCardId).length
-  }
-
   return (
     <div>
       {/* Page Header with Back Button */}
@@ -105,16 +119,16 @@ export default function InspectionReport() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/inspections')}
+          onClick={() => navigate(`/orders/${order?.production_order_id || order?.order_id}`)}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Inspections
+          Back to Order
         </Button>
 
         <PageHeader
           title={`Inspection Report: ${inspection.inspection_number}`}
-          description={`${inspection.customer} | ${inspection.style} - ${inspection.color}`}
+          description={`${order?.customer_name} | Order: ${order?.production_order_id || order?.order_id}`}
         />
       </div>
 
@@ -135,27 +149,27 @@ export default function InspectionReport() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatsCard
           title="Total Job Cards"
-          value={jobCards.length.toString()}
-          subtitle="In this style/color"
+          value={jobCardsCount.toString()}
+          subtitle="In this order"
           icon={Package}
         />
         <StatsCard
-          title="Pass Rate"
-          value={`${stats?.passRate || 0}%`}
-          subtitle="Inspection pass rate"
-          icon={TrendingUp}
+          title="Scanned"
+          value={scannedCount.toString()}
+          subtitle="Job cards inspected"
+          icon={ClipboardCheck}
         />
         <StatsCard
           title="Total Alterations"
-          value={(stats?.totalAlterations || 0).toString()}
-          subtitle="Across all job cards"
+          value={alterations.length.toString()}
+          subtitle="Found in inspection"
           icon={AlertTriangle}
         />
         <StatsCard
           title="Pending Corrections"
-          value={(stats?.pendingCorrections || 0).toString()}
+          value={pendingCount.toString()}
           subtitle="Awaiting correction"
-          icon={ClipboardCheck}
+          icon={CheckCircle2}
         />
       </div>
 
@@ -166,6 +180,10 @@ export default function InspectionReport() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Inspection Number</p>
+              <p className="font-medium">{inspection.inspection_number}</p>
+            </div>
             <div>
               <p className="text-sm text-gray-600">Inspector</p>
               <p className="font-medium">{inspection.inspector_name}</p>
@@ -182,6 +200,18 @@ export default function InspectionReport() {
                 {inspection.overall_status.replace(/_/g, ' ')}
               </Badge>
             </div>
+            <div>
+              <p className="text-sm text-gray-600">Order</p>
+              <p className="font-medium">{order?.production_order_id || order?.order_id}</p>
+            </div>
+            {inspection.completed_at && (
+              <div>
+                <p className="text-sm text-gray-600">Completed</p>
+                <p className="font-medium">
+                  {format(new Date(inspection.completed_at), 'MMM dd, yyyy')}
+                </p>
+              </div>
+            )}
             {inspection.general_notes && (
               <div className="col-span-2 md:col-span-3">
                 <p className="text-sm text-gray-600">General Notes</p>
@@ -202,14 +232,14 @@ export default function InspectionReport() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Job Cards ({jobCards.length})</CardTitle>
+            <CardTitle>Job Cards ({jobCardsCount})</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {jobCards.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Package className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-lg font-medium">No job cards found for this style</p>
+              <p className="text-lg font-medium">No job cards found for this order</p>
             </div>
           ) : (
             <Table>
@@ -218,14 +248,14 @@ export default function InspectionReport() {
                   <TableHead>Serial No</TableHead>
                   <TableHead>Size</TableHead>
                   <TableHead>Color</TableHead>
-                  <TableHead>Inspection Status</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Alterations</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {jobCards.map((jobCard) => {
-                  const alterationsCount = getAlterationsCount(jobCard.id)
+                  const alterationsCount = getJobCardAlterations(jobCard.id).length
                   return (
                     <TableRow
                       key={jobCard.id}
@@ -235,19 +265,7 @@ export default function InspectionReport() {
                       <TableCell className="font-medium">{jobCard.serial_no}</TableCell>
                       <TableCell>{jobCard.size || '—'}</TableCell>
                       <TableCell>{jobCard.color || '—'}</TableCell>
-                      <TableCell>
-                        {alterationsCount === 0 ? (
-                          <Badge className="bg-green-100 text-green-800">Pass</Badge>
-                        ) : alterationsCount <= 2 ? (
-                          <Badge className="bg-yellow-100 text-yellow-800">
-                            Minor Alterations
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-orange-100 text-orange-800">
-                            Major Alterations
-                          </Badge>
-                        )}
-                      </TableCell>
+                      <TableCell>{getInspectionStatusBadge(jobCard.id)}</TableCell>
                       <TableCell>
                         {alterationsCount > 0 ? (
                           <span className="font-medium text-orange-600">
