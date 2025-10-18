@@ -36,7 +36,7 @@ export default function AddAlteration() {
 
   // Fetch data
   const { data: jobCardData, isLoading: jobCardLoading } = useJobCard(jobCardId)
-  const { data: inspectionData, isLoading: inspectionLoading } = useInspectionById(inspectionId)
+  const { isLoading: inspectionLoading } = useInspectionById(inspectionId)
   const { data: templates = [], isLoading: templatesLoading, isError: templatesError } = useAlterationTemplates()
   const createMutation = useCreateAlteration()
 
