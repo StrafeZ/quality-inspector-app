@@ -259,7 +259,6 @@ const ordersService = {
 
       // Fetch stitcher names from job_card_status_history
       const jobCardIds = jobCards?.map((jc: any) => jc.id) || []
-      console.log('🔍 DEBUG - Job card IDs for stitcher lookup:', jobCardIds)
 
       const { data: stitcherData, error: stitcherError } = await supabase
         .from('job_card_status_history')
@@ -267,24 +266,17 @@ const ordersService = {
         .in('job_card_id', jobCardIds.length > 0 ? jobCardIds : [''])
         .eq('status', 'stitched')
 
-      console.log('🔍 DEBUG - Stitcher query result:', stitcherData)
-      console.log('🔍 DEBUG - Stitcher query error:', stitcherError)
-
       // Create a map of job_card_id -> stitcher_name
       const stitcherMap = new Map<string, string>()
       stitcherData?.forEach((entry: any) => {
         stitcherMap.set(entry.job_card_id, entry.worker_name)
       })
 
-      console.log('🔍 DEBUG - Stitcher map:', Object.fromEntries(stitcherMap))
-
       // Merge stitcher names into job cards
       const jobCardsWithStitcher = jobCards?.map((jc: any) => ({
         ...jc,
         stitcher_name: stitcherMap.get(jc.id) || null,
       })) || []
-
-      console.log('🔍 DEBUG - Final job cards with stitcher (first 3):', jobCardsWithStitcher.slice(0, 3))
 
       // Fetch alterations count by joining through job_cards
       // Note: alterations table doesn't have order_id, it has job_card_id
