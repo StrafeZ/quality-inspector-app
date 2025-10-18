@@ -24,7 +24,6 @@ import {
   Save,
   Loader2,
   Package,
-  User,
 } from 'lucide-react'
 
 export default function AddAlteration() {
@@ -50,7 +49,6 @@ export default function AddAlteration() {
 
   const jobCard = jobCardData?.jobCard
   const order = jobCardData?.order
-  const inspection = inspectionData?.inspection
 
   // Group templates by category
   const categories = [...new Set(templates.map(t => t.alteration_category))]

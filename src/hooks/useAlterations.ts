@@ -23,7 +23,7 @@ export function useCreateAlteration() {
   return useMutation({
     mutationFn: (alteration: Parameters<typeof alterationService.createAlteration>[0]) =>
       alterationService.createAlteration(alteration),
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['alterations', variables.job_card_id] })
       queryClient.invalidateQueries({ queryKey: ['inspection', variables.inspection_report_id] })
