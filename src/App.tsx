@@ -19,6 +19,7 @@ import InspectionReport from './pages/InspectionReport'
 import NewInspection from './pages/NewInspection'
 import CompleteInspection from './pages/CompleteInspection'
 import AddAlteration from './pages/AddAlteration'
+import AlterationTemplates from './pages/AlterationTemplates'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +61,7 @@ function App() {
               <Route path="/alterations/new" element={<AddAlteration />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings/alteration-templates" element={<AlterationTemplates />} />
             </Route>
 
             {/* Catch-all */}
