@@ -307,7 +307,9 @@ export default function JobCardDetail() {
               <div>
                 <p className="text-sm text-gray-600">Last Updated</p>
                 <p className="font-medium">
-                  {format(new Date(jobCard.updated_at), 'MMM dd, yyyy')}
+                  {jobCard.updated_at
+                    ? format(new Date(jobCard.updated_at), 'MMM dd, yyyy')
+                    : '—'}
                 </p>
               </div>
             )}
@@ -344,7 +346,9 @@ export default function JobCardDetail() {
               <div>
                 <p className="text-sm text-gray-600">Inspection Date</p>
                 <p className="font-medium">
-                  {format(new Date(inspection.inspection_date), 'MMM dd, yyyy')}
+                  {inspection.inspection_date
+                    ? format(new Date(inspection.inspection_date), 'MMM dd, yyyy')
+                    : '—'}
                 </p>
               </div>
               <div>
