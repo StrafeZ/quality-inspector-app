@@ -52,6 +52,85 @@ const alterationService = {
   },
 
   /**
+   * Create a new alteration template
+   * @param template - Template data without id and created_at
+   * @returns Promise with new template ID or null
+   */
+  async createTemplate(
+    template: Omit<AlterationTemplate, 'id' | 'created_at'>
+  ): Promise<string | null> {
+    try {
+      const { data, error } = await supabase
+        .from('alteration_templates')
+        .insert(template)
+        .select('id')
+        .single()
+
+      if (error) {
+        console.error('Error creating template:', error.message)
+        return null
+      }
+
+      return data?.id || null
+    } catch (error) {
+      console.error('Unexpected error creating template:', error)
+      return null
+    }
+  },
+
+  /**
+   * Update an existing alteration template
+   * @param id - Template ID
+   * @param updates - Fields to update
+   * @returns Promise<boolean> - Success status
+   */
+  async updateTemplate(
+    id: string,
+    updates: Partial<Omit<AlterationTemplate, 'id' | 'created_at'>>
+  ): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('alteration_templates')
+        .update(updates)
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error updating template:', error.message)
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.error('Unexpected error updating template:', error)
+      return false
+    }
+  },
+
+  /**
+   * Delete an alteration template
+   * @param id - Template ID
+   * @returns Promise<boolean> - Success status
+   */
+  async deleteTemplate(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('alteration_templates')
+        .delete()
+        .eq('id', id)
+
+      if (error) {
+        console.error('Error deleting template:', error.message)
+        return false
+      }
+
+      return true
+    } catch (error) {
+      console.error('Unexpected error deleting template:', error)
+      return false
+    }
+  },
+
+  /**
    * Create a new alteration
    * @param alteration - Alteration data
    * @returns Promise with new alteration ID or null
