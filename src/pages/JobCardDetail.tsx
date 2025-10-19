@@ -218,58 +218,6 @@ export default function JobCardDetail() {
         </Alert>
       )}
 
-      {/* Order Details Section */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Order Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Production PO</p>
-              <p className="font-medium">{order.order_id}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Customer</p>
-              <p className="font-medium">{order.customer_name || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Style</p>
-              <p className="font-medium">{order.style_name || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Color</p>
-              <p className="font-medium">{order.color || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Order Type</p>
-              <p
-                className={`font-medium ${
-                  order.order_type?.toLowerCase() === 'sample'
-                    ? 'text-red-600'
-                    : order.order_type?.toLowerCase() === 'production'
-                    ? 'text-green-600'
-                    : ''
-                }`}
-              >
-                {order.order_type
-                  ? order.order_type.charAt(0).toUpperCase() +
-                    order.order_type.slice(1).toLowerCase()
-                  : 'N/A'}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Delivery Date</p>
-              <p className="font-medium">
-                {order.delivery_date
-                  ? format(new Date(order.delivery_date), 'MMM dd, yyyy')
-                  : 'N/A'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Job Card Details Section */}
       <Card className="mb-8">
         <CardHeader>
