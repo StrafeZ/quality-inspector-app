@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
+import { supabase } from '@/lib/supabase'
 import { useJobCard } from '@/hooks/useOrders'
-import { useInspectionByOrder, useAlterationsByJobCard } from '@/hooks/useInspections'
+import { useAlterationsByJobCard } from '@/hooks/useInspections'
 import PageHeader from '@/components/layout/PageHeader'
 import StatsCard from '@/components/dashboard/StatsCard'
 import { Button } from '@/components/ui/button'
@@ -52,8 +54,29 @@ export default function JobCardDetail() {
   const order = jobCardData?.order
   const jobCard = jobCardData?.jobCard
 
-  // Fetch inspection report by order ID
-  const { data: inspection } = useInspectionByOrder(order?.order_id || '')
+  // Fetch inspection report by order ID - inline query
+  const { data: inspection } = useQuery({
+    queryKey: ['inspection-by-order', order?.order_id],
+    queryFn: async () => {
+      if (!order?.order_id) return null
+
+      const { data, error } = await supabase
+        .from('inspection_reports')
+        .select('*')
+        .eq('order_id', order.order_id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching inspection:', error)
+        return null
+      }
+
+      return data
+    },
+    enabled: !!order?.order_id,
+  })
 
   // Add debug logging
   console.log('JobCardDetail - order_id:', order?.order_id)
