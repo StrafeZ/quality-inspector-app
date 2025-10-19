@@ -9,7 +9,7 @@ export function useAlterationTemplates() {
   return useQuery({
     queryKey: ['alteration-templates'],
     queryFn: () => alterationService.getAlterationTemplates(),
-    staleTime: 1000 * 60 * 60, // 1 hour (templates don't change often)
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
@@ -58,7 +58,9 @@ export function useUpdateTemplate() {
     mutationFn: ({ id, updates }: { id: string; updates: Parameters<typeof alterationService.updateTemplate>[1] }) =>
       alterationService.updateTemplate(id, updates),
     onSuccess: () => {
+      // Force refetch by invalidating and refetching
       queryClient.invalidateQueries({ queryKey: ['alteration-templates'] })
+      queryClient.refetchQueries({ queryKey: ['alteration-templates'] })
     },
   })
 }

@@ -91,13 +91,13 @@ const alterationService = {
     try {
       console.log('updateTemplate called with:', { id, updates })
 
-      const { data, error } = await supabase
+      // Remove .select() since RLS might block it
+      const { error } = await supabase
         .from('alteration_templates')
         .update(updates)
         .eq('id', id)
-        .select()
 
-      console.log('updateTemplate result:', { data, error })
+      console.log('updateTemplate error:', error)
 
       if (error) {
         console.error('Error updating template:', error.message)
