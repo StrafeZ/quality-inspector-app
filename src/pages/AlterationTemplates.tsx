@@ -142,6 +142,16 @@ export default function AlterationTemplates() {
       return
     }
 
+    console.log('handleUpdate starting with:', {
+      templateId: editingTemplate.id,
+      updates: {
+        alteration_category: category,
+        alteration_type: type,
+        description_template: descriptionTemplate || null,
+        severity_default: severity,
+      },
+    })
+
     const success = await updateMutation.mutateAsync({
       id: editingTemplate.id,
       updates: {
@@ -151,6 +161,8 @@ export default function AlterationTemplates() {
         severity_default: severity,
       },
     })
+
+    console.log('handleUpdate result:', success)
 
     if (success) {
       toast.success('Template updated successfully')

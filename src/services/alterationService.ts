@@ -89,10 +89,15 @@ const alterationService = {
     updates: Partial<Omit<AlterationTemplate, 'id' | 'created_at'>>
   ): Promise<boolean> {
     try {
-      const { error } = await supabase
+      console.log('updateTemplate called with:', { id, updates })
+
+      const { data, error } = await supabase
         .from('alteration_templates')
         .update(updates)
         .eq('id', id)
+        .select()
+
+      console.log('updateTemplate result:', { data, error })
 
       if (error) {
         console.error('Error updating template:', error.message)
