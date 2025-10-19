@@ -5,7 +5,7 @@ import {
   useUpdateTemplate,
   useDeleteTemplate,
 } from '@/hooks/useAlterations'
-import { AlterationTemplate } from '@/services/alterationService'
+import type { AlterationTemplate } from '@/services/alterationService'
 import PageHeader from '@/components/layout/PageHeader'
 import { Button } from '@/components/ui/button'
 import {
