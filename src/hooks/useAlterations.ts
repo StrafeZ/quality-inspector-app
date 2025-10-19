@@ -30,3 +30,50 @@ export function useCreateAlteration() {
     },
   })
 }
+
+/**
+ * Hook to create a new alteration template
+ * @returns Mutation function and state
+ */
+export function useCreateTemplate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (template: Parameters<typeof alterationService.createTemplate>[0]) =>
+      alterationService.createTemplate(template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alteration-templates'] })
+    },
+  })
+}
+
+/**
+ * Hook to update an alteration template
+ * @returns Mutation function and state
+ */
+export function useUpdateTemplate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Parameters<typeof alterationService.updateTemplate>[1] }) =>
+      alterationService.updateTemplate(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alteration-templates'] })
+    },
+  })
+}
+
+/**
+ * Hook to delete an alteration template
+ * @returns Mutation function and state
+ */
+export function useDeleteTemplate() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => alterationService.deleteTemplate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['alteration-templates'] })
+    },
+  })
+}
